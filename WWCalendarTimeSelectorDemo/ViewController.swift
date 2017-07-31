@@ -134,6 +134,8 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         print("Selected \n\(date)\n---")
         singleDate = date
         dateLabel.text = date.stringFromFormat("d' 'MMMM' 'yyyy', 'h':'mma")
+        
+        //test commit
     }
     
     func WWCalendarTimeSelectorDone(_ selector: WWCalendarTimeSelector, dates: [Date]) {
