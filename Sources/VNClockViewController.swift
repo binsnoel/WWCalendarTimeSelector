@@ -122,6 +122,15 @@ class VNClockViewController: UIViewController, VNClockProtocol {
   open var optionSelectorPanelFontColorMultipleSelectionHighlight = UIColor.white
   open var optionSelectorPanelBackgroundColor = UIColor.brown.withAlphaComponent(0.9)
   
+  open static func instantiate() -> VNClockViewController {
+    let podBundle = Bundle(for: self.classForCoder())
+    let bundleURL = podBundle.url(forResource: "WWCalendarTimeSelectorStoryboardBundle", withExtension: "bundle")
+    var bundle: Bundle?
+    if let bundleURL = bundleURL {
+      bundle = Bundle(url: bundleURL)
+    }
+    return UIStoryboard(name: "VNClock", bundle: bundle).instantiateInitialViewController() as! VNClockViewController
+  }
   
   open override func viewDidLoad() {
     super.viewDidLoad()
