@@ -70,7 +70,7 @@ import UIKit
   }
 }
 
-class VNClockViewController: UIViewController, VNClockProtocol {
+open class VNClockViewController: UIViewController, VNClockProtocol {
   @IBOutlet weak var selTimeView: UIView!
   @IBOutlet weak var clockView: VNClock!
   @IBOutlet weak var timeLabel: UILabel!

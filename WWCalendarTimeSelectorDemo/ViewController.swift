@@ -42,7 +42,9 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         selector.optionCurrentDates = Set(multipleDates)
         selector.optionCurrentDateRange.setStartDate(multipleDates.first ?? singleDate)
         selector.optionCurrentDateRange.setEndDate(multipleDates.last ?? singleDate)
-        
+      
+      let clockView = UIStoryboard(name: "VNClock", bundle: nil).instantiateInitialViewController() as! VNClockViewController
+      
         switch (indexPath as NSIndexPath).row {
             
         case 0:
@@ -110,7 +112,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             break
         }
         
-        present(selector, animated: true, completion: nil)
+        present(clockView, animated: true, completion: nil)
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
