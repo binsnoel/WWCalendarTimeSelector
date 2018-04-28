@@ -184,10 +184,6 @@ open class VNClockViewController: UIViewController, VNClockProtocol {
     isFirstLoad = false
   }
   
-  override func didReceiveMemoryWarning() {
-    super.didReceiveMemoryWarning()
-    // Dispose of any resources that can be recreated.
-  }
   @IBAction func amClicked(_ sender: Any) {
     VNClockSwitchAMPM(isAM: true, isPM: false)
   }
