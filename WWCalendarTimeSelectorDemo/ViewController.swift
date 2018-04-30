@@ -43,7 +43,8 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         selector.optionCurrentDateRange.setStartDate(multipleDates.first ?? singleDate)
         selector.optionCurrentDateRange.setEndDate(multipleDates.last ?? singleDate)
       
-      let clockView = UIStoryboard(name: "VNClock", bundle: nil).instantiateInitialViewController() as! VNClockViewController
+      //let clockView = UIStoryboard(name: "VNClock", bundle: nil).instantiateInitialViewController() as! VNClockViewController
+      let clockView = VNClockViewController.instantiate()
       
         switch (indexPath as NSIndexPath).row {
             

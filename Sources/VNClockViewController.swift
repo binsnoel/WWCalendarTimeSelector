@@ -135,8 +135,6 @@ open class VNClockViewController: UIViewController, VNClockProtocol {
   open override func viewDidLoad() {
     super.viewDidLoad()
     
-    view.layoutIfNeeded()
-    
     UIDevice.current.beginGeneratingDeviceOrientationNotifications()
     //NotificationCenter.default.addObserver(self, selector: #selector(VNCalendarTimeSelector.didRotateOrNot), name: NSNotification.Name.UIDeviceOrientationDidChange, object: nil)
     
@@ -165,6 +163,7 @@ open class VNClockViewController: UIViewController, VNClockProtocol {
     updateDate()
     
     isFirstLoad = true
+    view.layoutIfNeeded()
   }
   
   open override func viewDidLayoutSubviews() {
