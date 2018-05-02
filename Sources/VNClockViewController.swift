@@ -134,7 +134,7 @@ open class VNClockViewController: UIViewController, VNClockProtocol {
   
   open override func viewDidLoad() {
     super.viewDidLoad()
-    
+    //test
     view.layoutIfNeeded()
     
     UIDevice.current.beginGeneratingDeviceOrientationNotifications()
