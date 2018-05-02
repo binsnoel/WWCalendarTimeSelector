@@ -129,11 +129,13 @@ open class VNClockViewController: UIViewController, VNClockProtocol {
     if let bundleURL = bundleURL {
       bundle = Bundle(url: bundleURL)
     }
-    return UIStoryboard(name: "VNClockViewController", bundle: bundle).instantiateInitialViewController() as! VNClockViewController
+    return UIStoryboard(name: "VNClock", bundle: bundle).instantiateInitialViewController() as! VNClockViewController
   }
   
   open override func viewDidLoad() {
     super.viewDidLoad()
+    
+    view.layoutIfNeeded()
     
     UIDevice.current.beginGeneratingDeviceOrientationNotifications()
     //NotificationCenter.default.addObserver(self, selector: #selector(VNCalendarTimeSelector.didRotateOrNot), name: NSNotification.Name.UIDeviceOrientationDidChange, object: nil)
@@ -163,7 +165,6 @@ open class VNClockViewController: UIViewController, VNClockProtocol {
     updateDate()
     
     isFirstLoad = true
-    view.layoutIfNeeded()
   }
   
   open override func viewDidLayoutSubviews() {
@@ -370,7 +371,7 @@ internal protocol VNClockProtocol: NSObjectProtocol {
   func VNClockSetMinute(_ minute: Int)
 }
 
-internal class VNClock: UIView {
+class VNClock: UIView {
   
   open weak var delegate: VNClockProtocol!
   internal var backgroundColorClockFace: UIColor!
