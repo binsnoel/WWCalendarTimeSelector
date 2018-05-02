@@ -241,7 +241,7 @@ import UIKit
     @objc optional func WWCalendarTimeSelectorShouldSelectDate(_ selector: WWCalendarTimeSelector, date: Date) -> Bool
 }
 
-open class WWCalendarTimeSelector: UIViewController, UITableViewDelegate, UITableViewDataSource, WWCalendarRowProtocol, WWClockProtocol {
+open class WWCalendarTimeSelector: UIViewController, WWClockProtocol {
     
     /// The delegate of `WWCalendarTimeSelector` can adopt the `WWCalendarTimeSelectorProtocol` optional methods. The following Optional methods are available:
     ///
@@ -576,60 +576,12 @@ open class WWCalendarTimeSelector: UIViewController, UITableViewDelegate, UITabl
     open var optionLayoutLandscapeRatio: CGFloat = 3/8
     
     // All Views
-    @IBOutlet fileprivate weak var topContainerView: UIView!
-    @IBOutlet fileprivate weak var bottomContainerView: UIView!
-    @IBOutlet fileprivate weak var backgroundDayView: UIView!
-    @IBOutlet fileprivate weak var backgroundSelView: UIView!
-    @IBOutlet fileprivate weak var backgroundRangeView: UIView!
-    @IBOutlet fileprivate weak var backgroundContentView: UIView!
-    @IBOutlet fileprivate weak var backgroundButtonsView: UIView!
-    @IBOutlet fileprivate weak var cancelButton: UIButton!
-    @IBOutlet fileprivate weak var doneButton: UIButton!
-    @IBOutlet fileprivate weak var selDateView: UIView!
-    @IBOutlet fileprivate weak var selYearView: UIView!
     @IBOutlet fileprivate weak var selTimeView: UIView!
-    @IBOutlet fileprivate weak var selMultipleDatesTable: UITableView!
-    @IBOutlet fileprivate weak var dayLabel: UILabel!
-    @IBOutlet fileprivate weak var monthLabel: UILabel!
-    @IBOutlet fileprivate weak var dateLabel: UILabel!
-    @IBOutlet fileprivate weak var yearLabel: UILabel!
     @IBOutlet fileprivate weak var timeLabel: UILabel!
-    @IBOutlet fileprivate weak var rangeStartLabel: UILabel!
-    @IBOutlet fileprivate weak var rangeToLabel: UILabel!
-    @IBOutlet fileprivate weak var rangeEndLabel: UILabel!
-    @IBOutlet fileprivate weak var calendarTable: UITableView!
-    @IBOutlet fileprivate weak var yearTable: UITableView!
     @IBOutlet fileprivate weak var clockView: WWClock!
-    @IBOutlet fileprivate weak var monthsView: UIView!
-    @IBOutlet fileprivate var monthsButtons: [UIButton]!
-    
-    // All Constraints
-    @IBOutlet fileprivate weak var dayViewHeightConstraint: NSLayoutConstraint!
-    @IBOutlet fileprivate weak var topContainerTopConstraint: NSLayoutConstraint!
-    @IBOutlet fileprivate weak var topContainerLeftConstraint: NSLayoutConstraint!
-    @IBOutlet fileprivate weak var topContainerWidthConstraint: NSLayoutConstraint!
-    @IBOutlet fileprivate weak var topContainerHeightConstraint: NSLayoutConstraint!
-    @IBOutlet fileprivate weak var bottomContainerTopConstraint: NSLayoutConstraint!
-    @IBOutlet fileprivate weak var bottomContainerLeftConstraint: NSLayoutConstraint!
-    @IBOutlet fileprivate weak var bottomContainerWidthConstraint: NSLayoutConstraint!
-    @IBOutlet fileprivate weak var bottomContainerHeightConstraint: NSLayoutConstraint!
-    @IBOutlet fileprivate weak var selMonthXConstraint: NSLayoutConstraint!
-    @IBOutlet fileprivate weak var selMonthYConstraint: NSLayoutConstraint!
-    @IBOutlet fileprivate weak var selDateXConstraint: NSLayoutConstraint!
-    @IBOutlet fileprivate weak var selDateYConstraint: NSLayoutConstraint!
-    @IBOutlet fileprivate weak var selDateTopConstraint: NSLayoutConstraint!
-    @IBOutlet fileprivate weak var selDateLeftConstraint: NSLayoutConstraint!
-    @IBOutlet fileprivate weak var selDateRightConstraint: NSLayoutConstraint!
-    @IBOutlet fileprivate weak var selDateHeightConstraint: NSLayoutConstraint!
-    @IBOutlet fileprivate weak var selYearTopConstraint: NSLayoutConstraint!
-    @IBOutlet fileprivate weak var selYearLeftConstraint: NSLayoutConstraint!
-    @IBOutlet fileprivate weak var selYearRightConstraint: NSLayoutConstraint!
-    @IBOutlet fileprivate weak var selYearHeightConstraint: NSLayoutConstraint!
-    @IBOutlet fileprivate weak var selTimeTopConstraint: NSLayoutConstraint!
-    @IBOutlet fileprivate weak var selTimeLeftConstraint: NSLayoutConstraint!
-    @IBOutlet fileprivate weak var selTimeRightConstraint: NSLayoutConstraint!
-    @IBOutlet fileprivate weak var selTimeHeightConstraint: NSLayoutConstraint!
-    
+    @IBOutlet weak var amButton: UIButton!
+    @IBOutlet weak var pmButton: UIButton!
+  
     // Private Variables
     fileprivate let selAnimationDuration: TimeInterval = 0.4
     fileprivate let selInactiveHeight: CGFloat = 48
@@ -639,9 +591,6 @@ open class WWCalendarTimeSelector: UIViewController, UITableViewDelegate, UITabl
     fileprivate var landscapeContainerHeight: CGFloat { return optionLayoutWidth ?? optionLayoutWidthRatio * portraitWidth }
     fileprivate var landscapeTopContainerWidth: CGFloat { return optionShowTopContainer ? (optionLayoutHeight ?? optionLayoutHeightRatio * portraitHeight) * optionLayoutLandscapeRatio : 0 }
     fileprivate var landscapeBottomContainerWidth: CGFloat { return (optionLayoutHeight ?? optionLayoutHeightRatio * portraitHeight) - landscapeTopContainerWidth }
-    fileprivate var selActiveHeight: CGFloat { return backgroundSelView.frame.height - selInactiveHeight }
-    fileprivate var selInactiveWidth: CGFloat { return backgroundSelView.frame.width / 2 }
-    fileprivate var selActiveWidth: CGFloat { return backgroundSelView.frame.height - selInactiveHeight }
     fileprivate var selCurrrent: WWCalendarTimeSelectorStyle = WWCalendarTimeSelectorStyle(isSingular: true)
     fileprivate var isFirstLoad = false
     fileprivate var selTimeStateHour = true
@@ -668,7 +617,6 @@ open class WWCalendarTimeSelector: UIViewController, UITableViewDelegate, UITabl
     fileprivate var portraitWidth: CGFloat {
         return min(viewBoundsHeight, viewBoundsWidth)
     }
-    fileprivate var isSelectingStartRange: Bool = true { didSet { rangeStartLabel.textColor = isSelectingStartRange ? optionSelectorPanelFontColorDateHighlight : optionSelectorPanelFontColorDate; rangeEndLabel.textColor = isSelectingStartRange ? optionSelectorPanelFontColorDate : optionSelectorPanelFontColorDateHighlight } }
     fileprivate var shouldResetRange: Bool = true
     fileprivate var tintColor : UIColor! = UIColor.brown
     
@@ -724,49 +672,13 @@ open class WWCalendarTimeSelector: UIViewController, UITableViewDelegate, UITabl
         
         yearRow1 = optionCurrentDate.year - 5
         
-        selMultipleDatesTable.isHidden = optionSelectionType != .multiple
-        backgroundSelView.isHidden = optionSelectionType != .single
-        backgroundRangeView.isHidden = optionSelectionType != .range
-        
-        dayViewHeightConstraint.constant = optionShowTopPanel ? optionLayoutTopPanelHeight : 0
-        view.layoutIfNeeded()
+       view.layoutIfNeeded()
         
         UIDevice.current.beginGeneratingDeviceOrientationNotifications()
         NotificationCenter.default.addObserver(self, selector: #selector(WWCalendarTimeSelector.didRotateOrNot), name: NSNotification.Name.UIDeviceOrientationDidChange, object: nil)
         
-        backgroundDayView.backgroundColor = optionTopPanelBackgroundColor
-        backgroundSelView.backgroundColor = optionSelectorPanelBackgroundColor
-        backgroundRangeView.backgroundColor = optionSelectorPanelBackgroundColor
-        backgroundContentView.backgroundColor = optionMainPanelBackgroundColor
-        backgroundButtonsView.backgroundColor = optionBottomPanelBackgroundColor
-        selMultipleDatesTable.backgroundColor = optionSelectorPanelBackgroundColor
-        
-        doneButton.backgroundColor = optionButtonBackgroundColorDone
-        cancelButton.backgroundColor = optionButtonBackgroundColorCancel
-        doneButton.setAttributedTitle(NSAttributedString(string: optionButtonTitleDone, attributes: [NSFontAttributeName: optionButtonFontDone, NSForegroundColorAttributeName: optionButtonFontColorDone]), for: UIControlState())
-        cancelButton.setAttributedTitle(NSAttributedString(string: optionButtonTitleCancel, attributes: [NSFontAttributeName: optionButtonFontCancel, NSForegroundColorAttributeName: optionButtonFontColorCancel]), for: UIControlState())
-        doneButton.setAttributedTitle(NSAttributedString(string: optionButtonTitleDone, attributes: [NSFontAttributeName: optionButtonFontDone, NSForegroundColorAttributeName: optionButtonFontColorDoneHighlight]), for: UIControlState.highlighted)
-        cancelButton.setAttributedTitle(NSAttributedString(string: optionButtonTitleCancel, attributes: [NSFontAttributeName: optionButtonFontCancel, NSForegroundColorAttributeName: optionButtonFontColorCancelHighlight]), for: UIControlState.highlighted)
-        
-        if !optionButtonShowCancel {
-            cancelButton.isHidden = true
-        }
-        
-        dayLabel.textColor = optionTopPanelFontColor
-        dayLabel.font = optionTopPanelFont
-        monthLabel.font = optionSelectorPanelFontMonth
-        dateLabel.font = optionSelectorPanelFontDate
-        yearLabel.font = optionSelectorPanelFontYear
-        rangeStartLabel.font = optionSelectorPanelFontDate
-        rangeEndLabel.font = optionSelectorPanelFontDate
-        rangeToLabel.font = optionSelectorPanelFontDate
-        
+      
         let firstMonth = Date().beginningOfYear
-        for button in monthsButtons {
-            button.setTitle((firstMonth + button.tag.month).stringFromFormat("MMM"), for: UIControlState())
-            button.titleLabel?.font = optionCalendarFontMonth
-            button.tintColor = optionCalendarFontColorMonth
-        }
         
         clockView.delegate = self
         clockView.minuteStep = optionTimeStep
@@ -800,22 +712,10 @@ open class WWCalendarTimeSelector: UIViewController, UITableViewDelegate, UITabl
         
         if isFirstLoad {
             isFirstLoad = false // Temp fix for i6s+ bug?
-            calendarTable.reloadData()
-            yearTable.reloadData()
             clockView.setNeedsDisplay()
-            selMultipleDatesTable.reloadData()
             self.didRotateOrNot(animated: false)
-            
-            if optionStyles.showDateMonth {
-                showDate(true, animated: false)
-            }
-            else if optionStyles.showMonth {
-                showMonth(true, animated: false)
-            }
-            else if optionStyles.showYear {
-                showYear(true, animated: false)
-            }
-            else if optionStyles.showTime {
+          
+          if optionStyles.showTime {
                 showTime(true, animated: false)
             }
         }
@@ -836,28 +736,13 @@ open class WWCalendarTimeSelector: UIViewController, UITableViewDelegate, UITabl
             let isPortrait = orientation == .portrait || orientation == .portraitUpsideDown
             let size = CGSize(width: viewBoundsWidth, height: viewBoundsHeight)
             
-            topContainerWidthConstraint.constant = isPortrait ? optionShowTopContainer ? portraitContainerWidth : 0 : landscapeTopContainerWidth
-            topContainerHeightConstraint.constant = isPortrait ? portraitTopContainerHeight : optionShowTopContainer ? landscapeContainerHeight : 0
-            bottomContainerWidthConstraint.constant = isPortrait ? portraitContainerWidth : landscapeBottomContainerWidth
-            bottomContainerHeightConstraint.constant = isPortrait ? portraitBottomContainerHeight : landscapeContainerHeight
-            
             if isPortrait {
                 let width = min(size.width, size.height)
                 let height = max(size.width, size.height)
-                
-                topContainerLeftConstraint.constant = (width - topContainerWidthConstraint.constant) / 2
-                topContainerTopConstraint.constant = (height - (topContainerHeightConstraint.constant + bottomContainerHeightConstraint.constant)) / 2
-                bottomContainerLeftConstraint.constant = optionShowTopContainer ? topContainerLeftConstraint.constant : (width - bottomContainerWidthConstraint.constant) / 2
-                bottomContainerTopConstraint.constant = topContainerTopConstraint.constant + topContainerHeightConstraint.constant
             }
             else {
                 let width = max(size.width, size.height)
                 let height = min(size.width, size.height)
-                
-                topContainerLeftConstraint.constant = (width - (topContainerWidthConstraint.constant + bottomContainerWidthConstraint.constant)) / 2
-                topContainerTopConstraint.constant = (height - topContainerHeightConstraint.constant) / 2
-                bottomContainerLeftConstraint.constant = topContainerLeftConstraint.constant + topContainerWidthConstraint.constant
-                bottomContainerTopConstraint.constant = optionShowTopContainer ? topContainerTopConstraint.constant : (height - bottomContainerHeightConstraint.constant) / 2
             }
             
             if animated {
@@ -876,16 +761,7 @@ open class WWCalendarTimeSelector: UIViewController, UITableViewDelegate, UITabl
                 self.view.layoutIfNeeded()
             }
             
-            if selCurrrent.showDateMonth {
-                showDate(false, animated: animated)
-            }
-            else if selCurrrent.showMonth {
-                showMonth(false, animated: animated)
-            }
-            else if selCurrrent.showYear {
-                showYear(false, animated: animated)
-            }
-            else if selCurrrent.showTime {
+            if selCurrrent.showTime {
                 showTime(false, animated: animated)
             }
         }
@@ -906,59 +782,7 @@ open class WWCalendarTimeSelector: UIViewController, UITableViewDelegate, UITabl
             updateDate()
         }
     }
-    
-    @IBAction func selectStartRange() {
-        if isSelectingStartRange == true {
-            let date = optionCurrentDateRange.start
-            
-            let seventhRowStartDate = date.beginningOfMonth
-            calRow3StartDate = ((seventhRowStartDate - 1.day).beginningOfWeek - 1.day).beginningOfWeek
-            calRow2StartDate = (calRow3StartDate - 1.day).beginningOfWeek
-            calRow1StartDate = (calRow2StartDate - 1.day).beginningOfWeek
-            
-            flashDate = date
-            calendarTable.reloadData()
-            calendarTable.scrollToRow(at: IndexPath(row: 4, section: 0), at: UITableViewScrollPosition.top, animated: true)
-        }
-        else {
-            isSelectingStartRange = true
-        }
-        shouldResetRange = false
-        updateDate()
-    }
-    
-    @IBAction func selectEndRange() {
-        if isSelectingStartRange == false {
-            let date = optionCurrentDateRange.end
-            
-            let seventhRowStartDate = date.beginningOfMonth
-            calRow3StartDate = ((seventhRowStartDate - 1.day).beginningOfWeek - 1.day).beginningOfWeek
-            calRow2StartDate = (calRow3StartDate - 1.day).beginningOfWeek
-            calRow1StartDate = (calRow2StartDate - 1.day).beginningOfWeek
-            
-            flashDate = date
-            calendarTable.reloadData()
-            calendarTable.scrollToRow(at: IndexPath(row: 4, section: 0), at: UITableViewScrollPosition.top, animated: true)
-        }
-        else {
-            isSelectingStartRange = false
-        }
-        shouldResetRange = false
-        updateDate()
-    }
-    
-    @IBAction func showDate() {
-        if optionStyles.showDateMonth {
-            showDate(true)
-        }
-        else {
-            showMonth(true)
-        }
-    }
-    
-    @IBAction func showYear() {
-        showYear(true)
-    }
+  
     
     @IBAction func showTime() {
         showTime(true)
@@ -1004,100 +828,6 @@ open class WWCalendarTimeSelector: UIViewController, UITableViewDelegate, UITabl
         }
     }
     
-    fileprivate func showDate(_ userTap: Bool, animated: Bool = true) {
-        changeSelDate(animated: animated)
-        
-        if userTap {
-            let seventhRowStartDate = optionCurrentDate.beginningOfMonth
-            calRow3StartDate = ((seventhRowStartDate - 1.day).beginningOfWeek - 1.day).beginningOfWeek
-            calRow2StartDate = (calRow3StartDate - 1.day).beginningOfWeek
-            calRow1StartDate = (calRow2StartDate - 1.day).beginningOfWeek
-            calendarTable.reloadData()
-            calendarTable.scrollToRow(at: IndexPath(row: 4, section: 0), at: UITableViewScrollPosition.top, animated: animated)
-        }
-        else {
-            calendarTable.reloadData()
-        }
-        
-        let animations = {
-            self.calendarTable.alpha = 1
-            self.monthsView.alpha = 0
-            self.yearTable.alpha = 0
-            self.clockView.alpha = 0
-        }
-        if animated {
-            UIView.animate(
-                withDuration: selAnimationDuration,
-                delay: 0,
-                options: [UIViewAnimationOptions.allowAnimatedContent, UIViewAnimationOptions.beginFromCurrentState, UIViewAnimationOptions.allowUserInteraction, UIViewAnimationOptions.curveEaseOut],
-                animations: animations,
-                completion: nil
-            )
-        } else {
-            animations()
-        }
-    }
-    
-    fileprivate func showMonth(_ userTap: Bool, animated: Bool = true) {
-        changeSelMonth(animated: animated)
-        
-        if userTap {
-            
-        }
-        else {
-            
-        }
-        
-        let animations = {
-            self.calendarTable.alpha = 0
-            self.monthsView.alpha = 1
-            self.yearTable.alpha = 0
-            self.clockView.alpha = 0
-        }
-        if animated {
-            UIView.animate(
-                withDuration: selAnimationDuration,
-                delay: 0,
-                options: [UIViewAnimationOptions.allowAnimatedContent, UIViewAnimationOptions.beginFromCurrentState, UIViewAnimationOptions.allowUserInteraction, UIViewAnimationOptions.curveEaseOut],
-                animations: animations,
-                completion: nil
-            )
-        } else {
-            animations()
-        }
-    }
-    
-    fileprivate func showYear(_ userTap: Bool, animated: Bool = true) {
-        changeSelYear(animated: animated)
-        
-        if userTap {
-            yearRow1 = optionCurrentDate.year - 5
-            yearTable.reloadData()
-            yearTable.scrollToRow(at: IndexPath(row: 3, section: 0), at: UITableViewScrollPosition.top, animated: animated)
-        }
-        else {
-            yearTable.reloadData()
-        }
-        
-        let animations = {
-            self.calendarTable.alpha = 0
-            self.monthsView.alpha = 0
-            self.yearTable.alpha = 1
-            self.clockView.alpha = 0
-        }
-        if animated {
-            UIView.animate(
-                withDuration: selAnimationDuration,
-                delay: 0,
-                options: [UIViewAnimationOptions.allowAnimatedContent, UIViewAnimationOptions.beginFromCurrentState, UIViewAnimationOptions.allowUserInteraction, UIViewAnimationOptions.curveEaseOut],
-                animations: animations,
-                completion: nil
-            )
-        } else {
-            animations()
-        }
-    }
-    
     fileprivate func showTime(_ userTap: Bool, animated: Bool = true) {
         if userTap {
             if selCurrrent.showTime {
@@ -1134,9 +864,6 @@ open class WWCalendarTimeSelector: UIViewController, UITableViewDelegate, UITabl
         }
         
         let animations = {
-            self.calendarTable.alpha = 0
-            self.monthsView.alpha = 0
-            self.yearTable.alpha = 0
             self.clockView.alpha = 1
         }
         if animated {
@@ -1152,828 +879,62 @@ open class WWCalendarTimeSelector: UIViewController, UITableViewDelegate, UITabl
         }
     }
     
-    fileprivate func updateDate() {
-        if let topPanelTitle = optionTopPanelTitle {
-            dayLabel.text = topPanelTitle
-        }
-        else {
-            if optionSelectionType == .single {
-                if optionStyles.showMonth {
-                    dayLabel.text = optionCurrentDate.stringFromFormat("MMMM")
-                }
-                else {
-                    dayLabel.text = optionCurrentDate.stringFromFormat("EEEE")
-                }
-            }
-            else {
-                dayLabel.text = defaultTopPanelTitleForMultipleDates
-            }
-        }
-        
-        monthLabel.text = optionCurrentDate.stringFromFormat("MMM")
-        dateLabel.text = optionStyles.showDateMonth ? optionCurrentDate.stringFromFormat("d") : nil
-        yearLabel.text = optionCurrentDate.stringFromFormat("yyyy")
-        rangeStartLabel.text = optionCurrentDateRange.start.stringFromFormat("d' 'MMM' 'yyyy")
-        rangeEndLabel.text = optionCurrentDateRange.end.stringFromFormat("d' 'MMM' 'yyyy")
-        rangeToLabel.textColor = optionSelectorPanelFontColorDate
-        if shouldResetRange {
-            rangeStartLabel.textColor = optionSelectorPanelFontColorDateHighlight
-            rangeEndLabel.textColor = optionSelectorPanelFontColorDateHighlight
-        }
-        else {
-            rangeStartLabel.textColor = isSelectingStartRange ? optionSelectorPanelFontColorDateHighlight : optionSelectorPanelFontColorDate
-            rangeEndLabel.textColor = isSelectingStartRange ? optionSelectorPanelFontColorDate : optionSelectorPanelFontColorDateHighlight
-        }
-        
-        let timeText = optionCurrentDate.stringFromFormat("h':'mma").lowercased()
-        let paragraph = NSMutableParagraphStyle()
-        paragraph.alignment = NSTextAlignment.center
-        let attrText = NSMutableAttributedString(string: timeText, attributes: [NSFontAttributeName: optionSelectorPanelFontTime, NSForegroundColorAttributeName: optionSelectorPanelFontColorTime, NSParagraphStyleAttributeName: paragraph])
-        
-        if selCurrrent.showDateMonth {
-            monthLabel.textColor = optionSelectorPanelFontColorMonthHighlight
-            dateLabel.textColor = optionSelectorPanelFontColorDateHighlight
-            yearLabel.textColor = optionSelectorPanelFontColorYear
-        }
-        else if selCurrrent.showMonth {
-            monthLabel.textColor = optionSelectorPanelFontColorMonthHighlight
-            dateLabel.textColor = optionSelectorPanelFontColorDateHighlight
-            yearLabel.textColor = optionSelectorPanelFontColorYear
-        }
-        else if selCurrrent.showYear {
-            monthLabel.textColor = optionSelectorPanelFontColorMonth
-            dateLabel.textColor = optionSelectorPanelFontColorDate
-            yearLabel.textColor = optionSelectorPanelFontColorYearHighlight
-        }
-        else if selCurrrent.showTime {
-            monthLabel.textColor = optionSelectorPanelFontColorMonth
-            dateLabel.textColor = optionSelectorPanelFontColorDate
-            yearLabel.textColor = optionSelectorPanelFontColorYear
-            
-            let colonIndex = timeText.characters.distance(from: timeText.startIndex, to: timeText.range(of: ":")!.lowerBound)
-            let hourRange = NSRange(location: 0, length: colonIndex)
-            let minuteRange = NSRange(location: colonIndex + 1, length: 2)
-            
-            if selTimeStateHour {
-                attrText.addAttributes([NSForegroundColorAttributeName: optionSelectorPanelFontColorTimeHighlight], range: hourRange)
-            }
-            else {
-                attrText.addAttributes([NSForegroundColorAttributeName: optionSelectorPanelFontColorTimeHighlight], range: minuteRange)
-            }
-        }
-        timeLabel.attributedText = attrText
-    }
+  fileprivate func updateDate() {
     
-    fileprivate func changeSelDate(animated: Bool = true) {
-        let selActiveHeight = self.selActiveHeight
-        let selInactiveHeight = self.selInactiveHeight
-        let selInactiveWidth = self.selInactiveWidth
-        let selInactiveWidthDouble = selInactiveWidth * 2
-        let selActiveHeightFull = backgroundSelView.frame.height
-        
-        backgroundSelView.sendSubview(toBack: selYearView)
-        backgroundSelView.sendSubview(toBack: selTimeView)
-        
-        // adjust date view (because it's complicated)
-        selMonthXConstraint.constant = 0
-        selMonthYConstraint.constant = -optionSelectorPanelOffsetHighlightMonth
-        selDateXConstraint.constant = 0
-        selDateYConstraint.constant = optionSelectorPanelOffsetHighlightDate
-        
-        // adjust positions
-        selDateTopConstraint.constant = 0
-        selDateLeftConstraint.constant = 0
-        selDateRightConstraint.constant = 0
-        selDateHeightConstraint.constant = optionStyles.countComponents() > 1 ? selActiveHeight : selActiveHeightFull
-        
-        selYearLeftConstraint.constant = 0
-        selTimeRightConstraint.constant = 0
-        if optionStyles.showYear {
-            selYearTopConstraint.constant = selActiveHeight
-            selYearHeightConstraint.constant = selInactiveHeight
-            if optionStyles.showTime {
-                selYearRightConstraint.constant = selInactiveWidth
-                selTimeHeightConstraint.constant = selInactiveHeight
-                selTimeTopConstraint.constant = selActiveHeight
-                selTimeLeftConstraint.constant = selInactiveWidth
-            }
-            else {
-                selYearRightConstraint.constant = 0
-                selTimeHeightConstraint.constant = 0
-                selTimeTopConstraint.constant = 0
-                selTimeLeftConstraint.constant = selInactiveWidthDouble
-            }
-        }
-        else {
-            selYearTopConstraint.constant = 0
-            selYearHeightConstraint.constant = 0
-            selYearRightConstraint.constant = selInactiveWidthDouble
-            if optionStyles.showTime {
-                selTimeHeightConstraint.constant = selInactiveHeight
-                selTimeTopConstraint.constant = selActiveHeight
-                selTimeLeftConstraint.constant = 0
-            }
-            else {
-                selTimeHeightConstraint.constant = 0
-                selTimeTopConstraint.constant = 0
-                selTimeLeftConstraint.constant = selInactiveWidthDouble
-            }
-        }
-        
-        monthLabel.contentScaleFactor = UIScreen.main.scale * optionSelectorPanelScaleMonth
-        dateLabel.contentScaleFactor = UIScreen.main.scale * optionSelectorPanelScaleDate
-        let animations = {
-            self.monthLabel.transform = CGAffineTransform.identity.scaledBy(x: self.optionSelectorPanelScaleMonth, y: self.optionSelectorPanelScaleMonth)
-            self.dateLabel.transform = CGAffineTransform.identity.scaledBy(x: self.optionSelectorPanelScaleDate, y: self.optionSelectorPanelScaleDate)
-            self.yearLabel.transform = CGAffineTransform.identity
-            self.timeLabel.transform = CGAffineTransform.identity
-            self.view.layoutIfNeeded()
-        }
-        let completion = { (_: Bool) in
-            if self.selCurrrent.showDateMonth {
-                self.yearLabel.contentScaleFactor = UIScreen.main.scale
-                self.timeLabel.contentScaleFactor = UIScreen.main.scale
-            }
-        }
-        if animated {
-            UIView.animate(
-                withDuration: selAnimationDuration,
-                delay: 0,
-                usingSpringWithDamping: 0.8,
-                initialSpringVelocity: 0,
-                options: [UIViewAnimationOptions.allowAnimatedContent, UIViewAnimationOptions.allowUserInteraction],
-                animations: animations,
-                completion: completion
-            )
-        } else {
-            animations()
-            completion(true)
-        }
-        selCurrrent.showDateMonth(true)
-        updateDate()
-    }
+    let timeText = optionCurrentDate.stringFromFormat("h':'mm").lowercased()
+    let paragraph = NSMutableParagraphStyle()
+    paragraph.alignment = NSTextAlignment.center
+    let attrText = NSMutableAttributedString(string: timeText, attributes: [NSFontAttributeName: optionSelectorPanelFontTime, NSForegroundColorAttributeName: optionSelectorPanelFontColorTime, NSParagraphStyleAttributeName: paragraph])
     
-    fileprivate func changeSelMonth(animated: Bool = true) {
-        let selActiveHeight = self.selActiveHeight
-        let selInactiveHeight = self.selInactiveHeight
-        let selInactiveWidth = self.selInactiveWidth
-        let selInactiveWidthDouble = selInactiveWidth * 2
-        let selActiveHeightFull = backgroundSelView.frame.height
-        
-        backgroundSelView.sendSubview(toBack: selYearView)
-        backgroundSelView.sendSubview(toBack: selTimeView)
-        
-        // adjust date view
-        selMonthXConstraint.constant = 0
-        selMonthYConstraint.constant = 0
-        selDateXConstraint.constant = 0
-        selDateYConstraint.constant = 0
-        
-        // adjust positions
-        selDateTopConstraint.constant = 0
-        selDateLeftConstraint.constant = 0
-        selDateRightConstraint.constant = 0
-        selDateHeightConstraint.constant = optionStyles.countComponents() > 1 ? selActiveHeight : selActiveHeightFull
-        
-        selYearLeftConstraint.constant = 0
-        selTimeRightConstraint.constant = 0
-        if optionStyles.showYear {
-            selYearTopConstraint.constant = selActiveHeight
-            selYearHeightConstraint.constant = selInactiveHeight
-            if optionStyles.showTime {
-                selYearRightConstraint.constant = selInactiveWidth
-                selTimeHeightConstraint.constant = selInactiveHeight
-                selTimeTopConstraint.constant = selActiveHeight
-                selTimeLeftConstraint.constant = selInactiveWidth
-            }
-            else {
-                selYearRightConstraint.constant = 0
-                selTimeHeightConstraint.constant = 0
-                selTimeTopConstraint.constant = 0
-                selTimeLeftConstraint.constant = selInactiveWidthDouble
-            }
-        }
-        else {
-            selYearTopConstraint.constant = 0
-            selYearHeightConstraint.constant = 0
-            selYearRightConstraint.constant = selInactiveWidthDouble
-            if optionStyles.showTime {
-                selTimeHeightConstraint.constant = selInactiveHeight
-                selTimeTopConstraint.constant = selActiveHeight
-                selTimeLeftConstraint.constant = 0
-            }
-            else {
-                selTimeHeightConstraint.constant = 0
-                selTimeTopConstraint.constant = 0
-                selTimeLeftConstraint.constant = selInactiveWidthDouble
-            }
-        }
-        
-        monthLabel.contentScaleFactor = UIScreen.main.scale * optionSelectorPanelScaleMonth
-        dateLabel.contentScaleFactor = UIScreen.main.scale * optionSelectorPanelScaleDate
-        let animations = {
-            self.monthLabel.transform = CGAffineTransform.identity.scaledBy(x: self.optionSelectorPanelScaleMonth, y: self.optionSelectorPanelScaleMonth)
-            self.dateLabel.transform = CGAffineTransform.identity.scaledBy(x: self.optionSelectorPanelScaleDate, y: self.optionSelectorPanelScaleDate)
-            self.yearLabel.transform = CGAffineTransform.identity
-            self.timeLabel.transform = CGAffineTransform.identity
-            self.view.layoutIfNeeded()
-        }
-        let completion = { (_: Bool) in
-            if self.selCurrrent.showMonth {
-                self.yearLabel.contentScaleFactor = UIScreen.main.scale
-                self.timeLabel.contentScaleFactor = UIScreen.main.scale
-            }
-        }
-        if animated {
-            UIView.animate(
-                withDuration: selAnimationDuration,
-                delay: 0,
-                usingSpringWithDamping: 0.8,
-                initialSpringVelocity: 0,
-                options: [UIViewAnimationOptions.allowAnimatedContent, UIViewAnimationOptions.allowUserInteraction],
-                animations: animations,
-                completion: completion
-            )
-        } else {
-            animations()
-            completion(true)
-        }
-        selCurrrent.showDateMonth(true)
-        updateDate()
+    if selCurrrent.showTime {
+      
+      let colonIndex = timeText.characters.distance(from: timeText.startIndex, to: timeText.range(of: ":")!.lowerBound)
+      let hourRange = NSRange(location: 0, length: colonIndex)
+      let minuteRange = NSRange(location: colonIndex + 1, length: 2)
+      
+      if selTimeStateHour {
+        attrText.addAttributes([NSForegroundColorAttributeName: optionSelectorPanelFontColorTimeHighlight], range: hourRange)
+      }
+      else {
+        attrText.addAttributes([NSForegroundColorAttributeName: optionSelectorPanelFontColorTimeHighlight], range: minuteRange)
+      }
     }
-    
-    fileprivate func changeSelYear(animated: Bool = true) {
-        let selInactiveHeight = self.selInactiveHeight
-        let selActiveHeight = self.selActiveHeight
-        let selInactiveWidth = self.selInactiveWidth
-        let selMonthX = monthLabel.bounds.width / 2
-        let selInactiveWidthDouble = selInactiveWidth * 2
-        let selActiveHeightFull = backgroundSelView.frame.height
-        
-        backgroundSelView.sendSubview(toBack: selDateView)
-        backgroundSelView.sendSubview(toBack: selTimeView)
-        
-        selDateXConstraint.constant = optionStyles.showDateMonth ? -selMonthX : 0
-        selDateYConstraint.constant = 0
-        selMonthXConstraint.constant = optionStyles.showDateMonth ? selMonthX : 0
-        selMonthYConstraint.constant = 0
-        
-        selYearTopConstraint.constant = 0
-        selYearLeftConstraint.constant = 0
-        selYearRightConstraint.constant = 0
-        selYearHeightConstraint.constant = optionStyles.countComponents() > 1 ? selActiveHeight : selActiveHeightFull
-        
-        selDateLeftConstraint.constant = 0
-        selTimeRightConstraint.constant = 0
-        
-        if optionStyles.showDateMonth || optionStyles.showMonth {
-            selDateHeightConstraint.constant = selInactiveHeight
-            selDateTopConstraint.constant = selActiveHeight
-            if optionStyles.showTime {
-                selDateRightConstraint.constant = selInactiveWidth
-                selTimeHeightConstraint.constant = selInactiveHeight
-                selTimeTopConstraint.constant = selActiveHeight
-                selTimeLeftConstraint.constant = selInactiveWidth
-            }
-            else {
-                selDateRightConstraint.constant = 0
-                selTimeHeightConstraint.constant = 0
-                selTimeTopConstraint.constant = 0
-                selTimeLeftConstraint.constant = selInactiveWidthDouble
-            }
-        }
-        else {
-            selDateHeightConstraint.constant = 0
-            selDateTopConstraint.constant = 0
-            selDateRightConstraint.constant = selInactiveWidthDouble
-            if optionStyles.showTime {
-                selTimeHeightConstraint.constant = selInactiveHeight
-                selTimeTopConstraint.constant = selActiveHeight
-                selTimeLeftConstraint.constant = 0
-            }
-            else {
-                selTimeHeightConstraint.constant = 0
-                selTimeTopConstraint.constant = 0
-                selTimeLeftConstraint.constant = selInactiveWidthDouble
-            }
-        }
-        
-        yearLabel.contentScaleFactor = UIScreen.main.scale * optionSelectorPanelScaleYear
-        let animations = {
-            self.yearLabel.transform = CGAffineTransform.identity.scaledBy(x: self.optionSelectorPanelScaleYear, y: self.optionSelectorPanelScaleYear)
-            self.monthLabel.transform = CGAffineTransform.identity
-            self.dateLabel.transform = CGAffineTransform.identity
-            self.timeLabel.transform = CGAffineTransform.identity
-            self.view.layoutIfNeeded()
-        }
-        let completion = { (_: Bool) in
-            if self.selCurrrent.showYear {
-                self.monthLabel.contentScaleFactor = UIScreen.main.scale
-                self.dateLabel.contentScaleFactor = UIScreen.main.scale
-                self.timeLabel.contentScaleFactor = UIScreen.main.scale
-            }
-        }
-        if animated {
-            UIView.animate(
-                withDuration: selAnimationDuration,
-                delay: 0,
-                usingSpringWithDamping: 0.8,
-                initialSpringVelocity: 0,
-                options: [UIViewAnimationOptions.allowAnimatedContent, UIViewAnimationOptions.allowUserInteraction],
-                animations: animations,
-                completion: completion
-            )
-        } else {
-            animations()
-            completion(true)
-        }
-        selCurrrent.showYear(true)
-        updateDate()
-    }
-    
+    timeLabel.attributedText = attrText
+    print(timeLabel)
+  }
+  
     fileprivate func changeSelTime(animated: Bool = true) {
-        let selInactiveHeight = self.selInactiveHeight
-        let selActiveHeight = self.selActiveHeight
-        let selInactiveWidth = self.selInactiveWidth
-        let selMonthX = monthLabel.bounds.width / 2
-        let selInactiveWidthDouble = selInactiveWidth * 2
-        let selActiveHeightFull = backgroundSelView.frame.height
-        
-        backgroundSelView.sendSubview(toBack: selYearView)
-        backgroundSelView.sendSubview(toBack: selDateView)
-        
-        selDateXConstraint.constant = optionStyles.showDateMonth ? -selMonthX : 0
-        selDateYConstraint.constant = 0
-        selMonthXConstraint.constant = optionStyles.showDateMonth ? selMonthX : 0
-        selMonthYConstraint.constant = 0
-        
-        selTimeTopConstraint.constant = 0
-        selTimeLeftConstraint.constant = 0
-        selTimeRightConstraint.constant = 0
-        selTimeHeightConstraint.constant = optionStyles.countComponents() > 1 ? selActiveHeight : selActiveHeightFull
-        
-        selDateLeftConstraint.constant = 0
-        selYearRightConstraint.constant = 0
-        if optionStyles.showDateMonth || optionStyles.showMonth {
-            selDateHeightConstraint.constant = selInactiveHeight
-            selDateTopConstraint.constant = selActiveHeight
-            if optionStyles.showYear {
-                selDateRightConstraint.constant = selInactiveWidth
-                selYearHeightConstraint.constant = selInactiveHeight
-                selYearTopConstraint.constant = selActiveHeight
-                selYearLeftConstraint.constant = selInactiveWidth
-            }
-            else {
-                selDateRightConstraint.constant = 0
-                selYearHeightConstraint.constant = 0
-                selYearTopConstraint.constant = 0
-                selYearLeftConstraint.constant = selInactiveWidthDouble
-            }
+      
+      
+      //timeLabel.contentScaleFactor = UIScreen.main.scale * optionSelectorPanelScaleTime
+      let animations = {
+        //self.timeLabel.transform = CGAffineTransform.identity.scaledBy(x: self.optionSelectorPanelScaleTime, y: self.optionSelectorPanelScaleTime)
+        self.view.layoutIfNeeded()
+      }
+      let completion = { (_: Bool) in
+        if self.selCurrrent.showTime {
         }
-        else {
-            selDateHeightConstraint.constant = 0
-            selDateTopConstraint.constant = 0
-            selDateRightConstraint.constant = selInactiveWidthDouble
-            if optionStyles.showYear {
-                selYearHeightConstraint.constant = selInactiveHeight
-                selYearTopConstraint.constant = selActiveHeight
-                selYearLeftConstraint.constant = 0
-            }
-            else {
-                selYearHeightConstraint.constant = 0
-                selYearTopConstraint.constant = 0
-                selYearLeftConstraint.constant = selInactiveWidthDouble
-            }
-        }
-        
-        timeLabel.contentScaleFactor = UIScreen.main.scale * optionSelectorPanelScaleTime
-        let animations = {
-            self.timeLabel.transform = CGAffineTransform.identity.scaledBy(x: self.optionSelectorPanelScaleTime, y: self.optionSelectorPanelScaleTime)
-            self.monthLabel.transform = CGAffineTransform.identity
-            self.dateLabel.transform = CGAffineTransform.identity
-            self.yearLabel.transform = CGAffineTransform.identity
-            self.view.layoutIfNeeded()
-        }
-        let completion = { (_: Bool) in
-            if self.selCurrrent.showTime {
-                self.monthLabel.contentScaleFactor = UIScreen.main.scale
-                self.dateLabel.contentScaleFactor = UIScreen.main.scale
-                self.yearLabel.contentScaleFactor = UIScreen.main.scale
-            }
-        }
-        if animated {
-            UIView.animate(
-                withDuration: selAnimationDuration,
-                delay: 0,
-                usingSpringWithDamping: 0.8,
-                initialSpringVelocity: 0,
-                options: [UIViewAnimationOptions.allowAnimatedContent, UIViewAnimationOptions.allowUserInteraction],
-                animations: animations,
-                completion: completion
-            )
-        } else {
-            animations()
-            completion(true)
-        }
-        selCurrrent.showTime(true)
-        updateDate()
+      }
+      if animated {
+        UIView.animate(
+          withDuration: selAnimationDuration,
+          delay: 0,
+          usingSpringWithDamping: 0.8,
+          initialSpringVelocity: 0,
+          options: [UIViewAnimationOptions.allowAnimatedContent, UIViewAnimationOptions.allowUserInteraction],
+          animations: animations,
+          completion: completion
+        )
+      } else {
+        animations()
+        completion(true)
+      }
+      selCurrrent.showTime(true)
+      updateDate()
     }
-    
-    open func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        if tableView == calendarTable {
-            return tableView.frame.height / 8
-        }
-        else if tableView == yearTable {
-            return tableView.frame.height / 5
-        }
-        return tableView.frame.height / 5
-    }
-    
-    open func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if tableView == calendarTable {
-            return 16
-        }
-        else if tableView == yearTable {
-            return 11
-        }
-        return multipleDates.count
-    }
-    
-    open func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        var cell: UITableViewCell
-        
-        if tableView == calendarTable {
-            if let c = tableView.dequeueReusableCell(withIdentifier: "cell") {
-                cell = c
-            }
-            else {
-                cell = UITableViewCell(style: UITableViewCellStyle.default, reuseIdentifier: "cell")
-                let calRow = WWCalendarRow()
-                calRow.translatesAutoresizingMaskIntoConstraints = false
-                calRow.delegate = self
-                calRow.backgroundColor = UIColor.clear
-                calRow.monthFont = optionCalendarFontMonth
-                calRow.monthFontColor = optionCalendarFontColorMonth
-                calRow.dayFont = optionCalendarFontDays
-                calRow.dayFontColor = optionCalendarFontColorDays
-                calRow.datePastFont = optionCalendarFontPastDates
-                calRow.datePastFontHighlight = optionCalendarFontPastDatesHighlight
-                calRow.datePastFontColor = optionCalendarFontColorPastDates
-                calRow.datePastHighlightFontColor = optionCalendarFontColorPastDatesHighlight
-                calRow.datePastHighlightBackgroundColor = optionCalendarBackgroundColorPastDatesHighlight
-                calRow.datePastFlashBackgroundColor = optionCalendarBackgroundColorPastDatesFlash
-                calRow.dateTodayFont = optionCalendarFontToday
-                calRow.dateTodayFontHighlight = optionCalendarFontTodayHighlight
-                calRow.dateTodayFontColor = optionCalendarFontColorToday
-                calRow.dateTodayHighlightFontColor = optionCalendarFontColorTodayHighlight
-                calRow.dateTodayHighlightBackgroundColor = optionCalendarBackgroundColorTodayHighlight
-                calRow.dateTodayFlashBackgroundColor = optionCalendarBackgroundColorTodayFlash
-                calRow.dateFutureFont = optionCalendarFontFutureDates
-                calRow.dateFutureFontHighlight = optionCalendarFontFutureDatesHighlight
-                calRow.dateFutureFontColor = optionCalendarFontColorFutureDates
-                calRow.dateFutureHighlightFontColor = optionCalendarFontColorFutureDatesHighlight
-                calRow.dateFutureHighlightBackgroundColor = optionCalendarBackgroundColorFutureDatesHighlight
-                calRow.dateFutureFlashBackgroundColor = optionCalendarBackgroundColorFutureDatesFlash
-                calRow.flashDuration = selAnimationDuration
-                calRow.multipleSelectionGrouping = optionMultipleSelectionGrouping
-                calRow.multipleSelectionEnabled = optionSelectionType != .single
-                cell.contentView.addSubview(calRow)
-                cell.backgroundColor = UIColor.clear
-                cell.contentView.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "H:|[cr]|", options: [], metrics: nil, views: ["cr": calRow]))
-                cell.contentView.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "V:|[cr]|", options: [], metrics: nil, views: ["cr": calRow]))
-            }
-            
-            for sv in cell.contentView.subviews {
-                if let calRow = sv as? WWCalendarRow {
-                    calRow.tag = (indexPath as NSIndexPath).row + 1
-                    switch optionSelectionType {
-                    case .single:
-                        calRow.selectedDates = [optionCurrentDate]
-                    case .multiple:
-                        calRow.selectedDates = optionCurrentDates
-                    case .range:
-                        calRow.selectedDates = Set(optionCurrentDateRange.array)
-                    }
-                    calRow.setNeedsDisplay()
-                    if let fd = flashDate {
-                        if calRow.flashDate(fd) {
-                            flashDate = nil
-                        }
-                    }
-                }
-            }
-        }
-        else if tableView == yearTable {
-            if let c = tableView.dequeueReusableCell(withIdentifier: "cell") {
-                cell = c
-            }
-            else {
-                cell = UITableViewCell(style: UITableViewCellStyle.default, reuseIdentifier: "cell")
-                cell.backgroundColor = UIColor.clear
-                cell.textLabel?.textAlignment = NSTextAlignment.center
-                cell.selectionStyle = UITableViewCellSelectionStyle.none
-            }
-            
-            let currentYear = Date().year
-            let displayYear = yearRow1 + (indexPath as NSIndexPath).row
-            if displayYear > currentYear {
-                cell.textLabel?.font = optionCurrentDate.year == displayYear ? optionCalendarFontFutureYearsHighlight : optionCalendarFontFutureYears
-                cell.textLabel?.textColor = optionCurrentDate.year == displayYear ? optionCalendarFontColorFutureYearsHighlight : optionCalendarFontColorFutureYears
-            }
-            else if displayYear < currentYear {
-                cell.textLabel?.font = optionCurrentDate.year == displayYear ? optionCalendarFontPastYearsHighlight : optionCalendarFontPastYears
-                cell.textLabel?.textColor = optionCurrentDate.year == displayYear ? optionCalendarFontColorPastYearsHighlight : optionCalendarFontColorPastYears
-            }
-            else {
-                cell.textLabel?.font = optionCurrentDate.year == displayYear ? optionCalendarFontCurrentYearHighlight : optionCalendarFontCurrentYear
-                cell.textLabel?.textColor = optionCurrentDate.year == displayYear ? optionCalendarFontColorCurrentYearHighlight : optionCalendarFontColorCurrentYear
-            }
-            cell.textLabel?.text = "\(displayYear)"
-        }
-        else { // multiple dates table
-            if let c = tableView.dequeueReusableCell(withIdentifier: "cell") {
-                cell = c
-            }
-            else {
-                cell = UITableViewCell(style: UITableViewCellStyle.default, reuseIdentifier: "cell")
-                cell.textLabel?.textAlignment = NSTextAlignment.center
-                cell.selectionStyle = UITableViewCellSelectionStyle.none
-                cell.backgroundColor = UIColor.clear
-            }
-            
-            let date = multipleDates[(indexPath as NSIndexPath).row]
-            cell.textLabel?.font = date == multipleDatesLastAdded ? optionSelectorPanelFontMultipleSelectionHighlight : optionSelectorPanelFontMultipleSelection
-            cell.textLabel?.textColor = date == multipleDatesLastAdded ? optionSelectorPanelFontColorMultipleSelectionHighlight : optionSelectorPanelFontColorMultipleSelection
-            cell.textLabel?.text = date.stringFromFormat("EEE', 'd' 'MMM' 'yyyy")
-        }
-        
-        return cell
-    }
-    
-    open func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        if tableView == yearTable {
-            let displayYear = yearRow1 + (indexPath as NSIndexPath).row
-            let newDate = optionCurrentDate.change(year: displayYear)
-            if delegate?.WWCalendarTimeSelectorShouldSelectDate?(self, date: newDate!) ?? true {
-                optionCurrentDate = newDate!
-                updateDate()
-                tableView.reloadData()
-            }
-        }
-        else if tableView == selMultipleDatesTable {
-            let date = multipleDates[(indexPath as NSIndexPath).row]
-            multipleDatesLastAdded = date
-            selMultipleDatesTable.reloadData()
-            let seventhRowStartDate = date.beginningOfMonth
-            calRow3StartDate = ((seventhRowStartDate - 1.day).beginningOfWeek - 1.day).beginningOfWeek
-            calRow2StartDate = (calRow3StartDate - 1.day).beginningOfWeek
-            calRow1StartDate = (calRow2StartDate - 1.day).beginningOfWeek
-            
-            flashDate = date
-            calendarTable.reloadData()
-            calendarTable.scrollToRow(at: IndexPath(row: 4, section: 0), at: UITableViewScrollPosition.top, animated: true)
-        }
-    }
-    
-    open func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        let offsetY = scrollView.contentOffset.y
-        
-        if scrollView == calendarTable {
-            let twoRow = backgroundContentView.frame.height / 4
-            if offsetY < twoRow {
-                // every row shift by 4 to the back, recalculate top 3 towards earlier dates
-                
-                let detail1 = WWCalendarRowGetDetails(-3)
-                let detail2 = WWCalendarRowGetDetails(-2)
-                let detail3 = WWCalendarRowGetDetails(-1)
-                calRow1Type = detail1.type
-                calRow1StartDate = detail1.startDate
-                calRow2Type = detail2.type
-                calRow2StartDate = detail2.startDate
-                calRow3Type = detail3.type
-                calRow3StartDate = detail3.startDate
-                
-                scrollView.contentOffset = CGPoint(x: 0, y: offsetY + twoRow * 2)
-                calendarTable.reloadData()
-            }
-            else if offsetY > twoRow * 3 {
-                // every row shift by 4 to the front, recalculate top 3 towards later dates
-                
-                let detail1 = WWCalendarRowGetDetails(5)
-                let detail2 = WWCalendarRowGetDetails(6)
-                let detail3 = WWCalendarRowGetDetails(7)
-                calRow1Type = detail1.type
-                calRow1StartDate = detail1.startDate
-                calRow2Type = detail2.type
-                calRow2StartDate = detail2.startDate
-                calRow3Type = detail3.type
-                calRow3StartDate = detail3.startDate
-                
-                scrollView.contentOffset = CGPoint(x: 0, y: offsetY - twoRow * 2)
-                calendarTable.reloadData()
-            }
-        }
-        else if scrollView == yearTable {
-            let triggerPoint = backgroundContentView.frame.height / 10 * 3
-            if offsetY < triggerPoint {
-                yearRow1 = yearRow1 - 3
-                
-                scrollView.contentOffset = CGPoint(x: 0, y: offsetY + triggerPoint * 2)
-                yearTable.reloadData()
-            }
-            else if offsetY > triggerPoint * 3 {
-                yearRow1 = yearRow1 + 3
-                
-                scrollView.contentOffset = CGPoint(x: 0, y: offsetY - triggerPoint * 2)
-                yearTable.reloadData()
-            }
-        }
-    }
-    
-    // CAN DO BETTER! TOO MANY LOOPS!
-    internal func WWCalendarRowGetDetails(_ row: Int) -> (type: WWCalendarRowType, startDate: Date) {
-        if row == 1 {
-            return (calRow1Type, calRow1StartDate)
-        }
-        else if row == 2 {
-            return (calRow2Type, calRow2StartDate)
-        }
-        else if row == 3 {
-            return (calRow3Type, calRow3StartDate)
-        }
-        else if row > 3 {
-            var startRow: Int
-            var startDate: Date
-            var rowType: WWCalendarRowType
-            if calRow3Type == .date {
-                startRow = 3
-                startDate = calRow3StartDate
-                rowType = calRow3Type
-            }
-            else if calRow2Type == .date {
-                startRow = 2
-                startDate = calRow2StartDate
-                rowType = calRow2Type
-            }
-            else {
-                startRow = 1
-                startDate = calRow1StartDate
-                rowType = calRow1Type
-            }
-            
-            for _ in startRow..<row {
-                if rowType == .month {
-                    rowType = .day
-                }
-                else if rowType == .day {
-                    rowType = .date
-                    startDate = startDate.beginningOfMonth
-                }
-                else {
-                    let newStartDate = startDate.endOfWeek + 1.day
-                    if newStartDate.month != startDate.month {
-                        rowType = .month
-                    }
-                    startDate = newStartDate
-                }
-            }
-            return (rowType, startDate)
-        }
-        else {
-            // row <= 0
-            var startRow: Int
-            var startDate: Date
-            var rowType: WWCalendarRowType
-            if calRow1Type == .date {
-                startRow = 1
-                startDate = calRow1StartDate
-                rowType = calRow1Type
-            }
-            else if calRow2Type == .date {
-                startRow = 2
-                startDate = calRow2StartDate
-                rowType = calRow2Type
-            }
-            else {
-                startRow = 3
-                startDate = calRow3StartDate
-                rowType = calRow3Type
-            }
-            
-            for _ in row..<startRow {
-                if rowType == .date {
-                    if startDate.day == 1 {
-                        rowType = .day
-                    }
-                    else {
-                        let newStartDate = (startDate - 1.day).beginningOfWeek
-                        if newStartDate.month != startDate.month {
-                            startDate = startDate.beginningOfMonth
-                        }
-                        else {
-                            startDate = newStartDate
-                        }
-                    }
-                }
-                else if rowType == .day {
-                    rowType = .month
-                }
-                else {
-                    rowType = .date
-                    startDate = (startDate - 1.day).beginningOfWeek
-                }
-            }
-            return (rowType, startDate)
-        }
-    }
-    
-    internal func WWCalendarRowDidSelect(_ date: Date) {
-        if delegate?.WWCalendarTimeSelectorShouldSelectDate?(self, date: date) ?? true {
-            switch optionSelectionType {
-            case .single:
-                optionCurrentDate = optionCurrentDate.change(year: date.year, month: date.month, day: date.day)
-                updateDate()
-                
-            case .multiple:
-                var indexPath: IndexPath
-                var indexPathToReload: IndexPath? = nil
-                
-                if let d = multipleDatesLastAdded {
-                    let indexToReload = multipleDates.index(of: d)!
-                    indexPathToReload = IndexPath(row: indexToReload, section: 0)
-                }
-                
-                if let indexToDelete = multipleDates.index(of: date) {
-                    // delete...
-                    indexPath = IndexPath(row: indexToDelete, section: 0)
-                    optionCurrentDates.remove(date)
-                    
-                    selMultipleDatesTable.scrollToRow(at: indexPath, at: UITableViewScrollPosition.middle, animated: true)
-                    
-                    multipleDatesLastAdded = nil
-                    selMultipleDatesTable.beginUpdates()
-                    selMultipleDatesTable.deleteRows(at: [indexPath], with: UITableViewRowAnimation.left)
-                    if let ip = indexPathToReload , ip != indexPath {
-                        selMultipleDatesTable.reloadRows(at: [ip], with: UITableViewRowAnimation.fade)
-                    }
-                    selMultipleDatesTable.endUpdates()
-                }
-                else {
-                    // insert...
-                    var shouldScroll = false
-                    
-                    optionCurrentDates.insert(date)
-                    let indexToAdd = multipleDates.index(of: date)!
-                    indexPath = IndexPath(row: indexToAdd, section: 0)
-                    
-                    if indexPath.row < optionCurrentDates.count - 1 {
-                        selMultipleDatesTable.scrollToRow(at: indexPath, at: UITableViewScrollPosition.middle, animated: true)
-                    }
-                    else {
-                        shouldScroll = true
-                    }
-                    
-                    multipleDatesLastAdded = date
-                    selMultipleDatesTable.beginUpdates()
-                    selMultipleDatesTable.insertRows(at: [indexPath], with: UITableViewRowAnimation.right)
-                    if let ip = indexPathToReload {
-                        selMultipleDatesTable.reloadRows(at: [ip], with: UITableViewRowAnimation.fade)
-                    }
-                    selMultipleDatesTable.endUpdates()
-                    
-                    if shouldScroll {
-                        selMultipleDatesTable.scrollToRow(at: indexPath, at: UITableViewScrollPosition.middle, animated: true)
-                    }
-                }
-                
-            case .range:
-                
-                let rangeDate = date.beginningOfDay
-                if shouldResetRange {
-                    optionCurrentDateRange.setStartDate(rangeDate)
-                    optionCurrentDateRange.setEndDate(rangeDate)
-                    isSelectingStartRange = false
-                    shouldResetRange = false
-                }
-                else {
-                    if isSelectingStartRange {
-                        optionCurrentDateRange.setStartDate(rangeDate)
-                        isSelectingStartRange = false
-                    }
-                    else {
-                        let date0 : Date = rangeDate
-                        let date1 : Date = optionCurrentDateRange.start
-                        optionCurrentDateRange.setStartDate(min(date0, date1))
-                        optionCurrentDateRange.setEndDate(max(date0, date1))
-                        shouldResetRange = true
-                    }
-                }
-                updateDate()
-            }
-            calendarTable.reloadData()
-        }
-    }
-    
+  
+  
+  
     internal func WWClockGetTime() -> Date {
         return optionCurrentDate
     }
@@ -2017,256 +978,6 @@ open class WWCalendarTimeSelector: UIViewController, UITableViewDelegate, UITabl
 @objc internal enum WWCalendarRowType: Int {
     case month, day, date
 }
-
-internal protocol WWCalendarRowProtocol: NSObjectProtocol {
-    func WWCalendarRowGetDetails(_ row: Int) -> (type: WWCalendarRowType, startDate: Date)
-    func WWCalendarRowDidSelect(_ date: Date)
-}
-
-internal class WWCalendarRow: UIView {
-    
-    internal weak var delegate: WWCalendarRowProtocol!
-    internal var monthFont: UIFont!
-    internal var monthFontColor: UIColor!
-    internal var dayFont: UIFont!
-    internal var dayFontColor: UIColor!
-    internal var datePastFont: UIFont!
-    internal var datePastFontHighlight: UIFont!
-    internal var datePastFontColor: UIColor!
-    internal var datePastHighlightFontColor: UIColor!
-    internal var datePastHighlightBackgroundColor: UIColor!
-    internal var datePastFlashBackgroundColor: UIColor!
-    internal var dateTodayFont: UIFont!
-    internal var dateTodayFontHighlight: UIFont!
-    internal var dateTodayFontColor: UIColor!
-    internal var dateTodayHighlightFontColor: UIColor!
-    internal var dateTodayHighlightBackgroundColor: UIColor!
-    internal var dateTodayFlashBackgroundColor: UIColor!
-    internal var dateFutureFont: UIFont!
-    internal var dateFutureFontHighlight: UIFont!
-    internal var dateFutureFontColor: UIColor!
-    internal var dateFutureHighlightFontColor: UIColor!
-    internal var dateFutureHighlightBackgroundColor: UIColor!
-    internal var dateFutureFlashBackgroundColor: UIColor!
-    internal var flashDuration: TimeInterval!
-    internal var multipleSelectionGrouping: WWCalendarTimeSelectorMultipleSelectionGrouping = .pill
-    internal var multipleSelectionEnabled: Bool = false
-    
-    internal var selectedDates: Set<Date> {
-        set {
-            originalDates = newValue
-            comparisonDates = []
-            for date in newValue {
-                comparisonDates.insert(date.beginningOfDay)
-            }
-        }
-        get {
-            return originalDates
-        }
-    }
-    fileprivate var originalDates: Set<Date> = []
-    fileprivate var comparisonDates: Set<Date> = []
-    //fileprivate let days = ["S", "M", "T", "W", "T", "F", "S"]
-    fileprivate let multipleSelectionBorder: CGFloat = 12
-    fileprivate let multipleSelectionBar: CGFloat = 8
-    
-    internal override func draw(_ rect: CGRect) {
-        let detail = delegate.WWCalendarRowGetDetails(tag)
-        let startDate = detail.startDate.beginningOfDay
-        
-        let ctx = UIGraphicsGetCurrentContext()
-        let boxHeight = rect.height
-        let boxWidth = rect.width / 7
-        let paragraph = NSMutableParagraphStyle()
-        paragraph.alignment = NSTextAlignment.center
-        
-        if detail.type == .month {
-            let monthName = startDate.stringFromFormat("MMMM yyyy").capitalized
-            let monthHeight = ceil(monthFont.lineHeight)
-            
-            let str = NSAttributedString(string: monthName, attributes: [NSFontAttributeName: monthFont, NSForegroundColorAttributeName: monthFontColor, NSParagraphStyleAttributeName: paragraph])
-            str.draw(in: CGRect(x: 0, y: boxHeight - monthHeight, width: rect.width, height: monthHeight))
-        }
-        else if detail.type == .day {
-            let dayHeight = ceil(dayFont.lineHeight)
-            let y = (boxHeight - dayHeight) / 2
-            let formatter = DateFormatter()
-            let days = formatter.veryShortWeekdaySymbols ?? ["S", "M", "T", "W", "T", "F", "S"]
-            for (index, element) in days.enumerated() {
-                let str = NSAttributedString(string: element, attributes: [NSFontAttributeName: dayFont, NSForegroundColorAttributeName: dayFontColor, NSParagraphStyleAttributeName: paragraph])
-                str.draw(in: CGRect(x: CGFloat(index) * boxWidth, y: y, width: boxWidth, height: dayHeight))
-            }
-        }
-        else {
-            let today = Date().beginningOfDay
-            var date = startDate
-            var str: NSMutableAttributedString
-            
-            for i in 1...7 {
-                if date.weekday == i {
-                    var font = comparisonDates.contains(date) ? dateFutureFontHighlight : dateFutureFont
-                    var fontColor = dateFutureFontColor
-                    var fontHighlightColor = dateFutureHighlightFontColor
-                    var backgroundHighlightColor = dateFutureHighlightBackgroundColor.cgColor
-                    if date == today {
-                        font = comparisonDates.contains(date) ? dateTodayFontHighlight : dateTodayFont
-                        fontColor = dateTodayFontColor
-                        fontHighlightColor = dateTodayHighlightFontColor
-                        backgroundHighlightColor = dateTodayHighlightBackgroundColor.cgColor
-                    }
-                    else if date.compare(today) == ComparisonResult.orderedAscending {
-                        font = comparisonDates.contains(date) ? datePastFontHighlight : datePastFont
-                        fontColor = datePastFontColor
-                        fontHighlightColor = datePastHighlightFontColor
-                        backgroundHighlightColor = datePastHighlightBackgroundColor.cgColor
-                    }
-                    
-                    let dateHeight = ceil(font!.lineHeight) as CGFloat
-                    let y = (boxHeight - dateHeight) / 2
-                    
-                    if comparisonDates.contains(date) {
-                        ctx?.setFillColor(backgroundHighlightColor)
-                        
-                        if multipleSelectionEnabled {
-                            var testStringSize = NSAttributedString(string: "00", attributes: [NSFontAttributeName: dateTodayFontHighlight, NSParagraphStyleAttributeName: paragraph]).size()
-                            var dateMaxWidth = testStringSize.width
-                            var dateMaxHeight = testStringSize.height
-                            if dateFutureFontHighlight.lineHeight > dateTodayFontHighlight.lineHeight {
-                                testStringSize = NSAttributedString(string: "00", attributes: [NSFontAttributeName: dateFutureFontHighlight, NSParagraphStyleAttributeName: paragraph]).size()
-                                dateMaxWidth = testStringSize.width
-                                dateMaxHeight = testStringSize.height
-                            }
-                            if datePastFontHighlight.lineHeight > dateFutureFontHighlight.lineHeight {
-                                testStringSize = NSAttributedString(string: "00", attributes: [NSFontAttributeName: datePastFontHighlight, NSParagraphStyleAttributeName: paragraph]).size()
-                                dateMaxWidth = testStringSize.width
-                                dateMaxHeight = testStringSize.height
-                            }
-                            
-                            let size = min(max(dateHeight, dateMaxWidth) + multipleSelectionBorder, min(boxHeight, boxWidth))
-                            let maxConnectorSize = min(max(dateMaxHeight, dateMaxWidth) + multipleSelectionBorder, min(boxHeight, boxWidth))
-                            let x = CGFloat(i - 1) * boxWidth + (boxWidth - size) / 2
-                            let y = (boxHeight - size) / 2
-                            
-                            // connector
-                            switch multipleSelectionGrouping {
-                            case .simple:
-                                break
-                            case .pill:
-                                if comparisonDates.contains(date - 1.day) {
-                                    ctx?.fill(CGRect(x: CGFloat(i - 1) * boxWidth, y: y, width: boxWidth / 2 + 1, height: maxConnectorSize))
-                                }
-                                if comparisonDates.contains(date + 1.day) {
-                                    ctx?.fill(CGRect(x: CGFloat(i - 1) * boxWidth + boxWidth / 2, y: y, width: boxWidth / 2 + 1, height: maxConnectorSize))
-                                }
-                            case .linkedBalls:
-                                if comparisonDates.contains(date - 1.day) {
-                                    ctx?.fill(CGRect(x: CGFloat(i - 1) * boxWidth, y: (boxHeight - multipleSelectionBar) / 2, width: boxWidth / 2 + 1, height: multipleSelectionBar))
-                                }
-                                if comparisonDates.contains(date + 1.day) {
-                                    ctx?.fill(CGRect(x: CGFloat(i - 1) * boxWidth + boxWidth / 2, y: (boxHeight - multipleSelectionBar) / 2, width: boxWidth / 2 + 1, height: multipleSelectionBar))
-                                }
-                            }
-                            
-                            // ball
-                            ctx?.fillEllipse(in: CGRect(x: x, y: y, width: size, height: size))
-                        }
-                        else {
-                            let size = min(boxHeight, boxWidth)
-                            let x = CGFloat(i - 1) * boxWidth + (boxWidth - size) / 2
-                            let y = (boxHeight - size) / 2
-                            ctx?.fillEllipse(in: CGRect(x: x, y: y, width: size, height: size))
-                        }
-                        
-                        str = NSMutableAttributedString(string: "\(date.day)", attributes: [NSFontAttributeName: font!, NSForegroundColorAttributeName: fontHighlightColor!, NSParagraphStyleAttributeName: paragraph])
-                    }
-                    else {
-                        str = NSMutableAttributedString(string: "\(date.day)", attributes: [NSFontAttributeName: font!, NSForegroundColorAttributeName: fontColor!, NSParagraphStyleAttributeName: paragraph])
-                    }
-                    
-                    str.draw(in: CGRect(x: CGFloat(i - 1) * boxWidth, y: y, width: boxWidth, height: dateHeight))
-                    date = date + 1.day
-                    if date.month != startDate.month {
-                        break
-                    }
-                }
-            }
-        }
-    }
-    
-    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        let detail = delegate.WWCalendarRowGetDetails(tag)
-        if detail.type == .date {
-            let boxWidth = bounds.width / 7
-            if let touch = touches.sorted(by: { $0.timestamp < $1.timestamp }).last {
-                let boxIndex = Int(floor(touch.location(in: self).x / boxWidth))
-                let dateTapped = detail.startDate + boxIndex.days - (detail.startDate.weekday - 1).days
-                if dateTapped.month == detail.startDate.month {
-                    delegate.WWCalendarRowDidSelect(dateTapped)
-                }
-            }
-        }
-    }
-    
-    fileprivate func flashDate(_ date: Date) -> Bool {
-        let detail = delegate.WWCalendarRowGetDetails(tag)
-        
-        if detail.type == .date {
-            let today = Date().beginningOfDay
-            let startDate = detail.startDate.beginningOfDay
-            let flashDate = date.beginningOfDay
-            let boxHeight = bounds.height
-            let boxWidth = bounds.width / 7
-            var date = startDate
-            
-            for i in 1...7 {
-                if date.weekday == i {
-                    if date == flashDate {
-                        var flashColor = dateFutureFlashBackgroundColor
-                        if flashDate == today {
-                            flashColor = dateTodayFlashBackgroundColor
-                        }
-                        else if flashDate.compare(today) == ComparisonResult.orderedAscending {
-                            flashColor = datePastFlashBackgroundColor
-                        }
-                        
-                        let flashView = UIView(frame: CGRect(x: CGFloat(i - 1) * boxWidth, y: 0, width: boxWidth, height: boxHeight))
-                        flashView.backgroundColor = flashColor
-                        flashView.alpha = 0
-                        addSubview(flashView)
-                        UIView.animate(
-                            withDuration: flashDuration / 2,
-                            delay: 0,
-                            options: [UIViewAnimationOptions.allowAnimatedContent, UIViewAnimationOptions.allowUserInteraction, UIViewAnimationOptions.beginFromCurrentState, UIViewAnimationOptions.curveEaseOut],
-                            animations: {
-                                flashView.alpha = 0.75
-                            },
-                            completion: { _ in
-                                UIView.animate(
-                                    withDuration: self.flashDuration / 2,
-                                    delay: 0,
-                                    options: [UIViewAnimationOptions.allowAnimatedContent, UIViewAnimationOptions.allowUserInteraction, UIViewAnimationOptions.beginFromCurrentState, UIViewAnimationOptions.curveEaseIn],
-                                    animations: {
-                                        flashView.alpha = 0
-                                    },
-                                    completion: { _ in
-                                        flashView.removeFromSuperview()
-                                    }
-                                )
-                            }
-                        )
-                        return true
-                    }
-                    date = date + 1.day
-                    if date.month != startDate.month {
-                        break
-                    }
-                }
-            }
-        }
-        return false
-    }
-}
-
 internal protocol WWClockProtocol: NSObjectProtocol {
     func WWClockGetTime() -> Date
     func WWClockSwitchAMPM(isAM: Bool, isPM: Bool)
@@ -2275,348 +986,354 @@ internal protocol WWClockProtocol: NSObjectProtocol {
 }
 
 internal class WWClock: UIView {
-    
-    internal weak var delegate: WWClockProtocol!
-    internal var backgroundColorClockFace: UIColor!
-    internal var backgroundColorClockFaceCenter: UIColor!
-    internal var fontAMPM: UIFont!
-    internal var fontAMPMHighlight: UIFont!
-    internal var fontColorAMPM: UIColor!
-    internal var fontColorAMPMHighlight: UIColor!
-    internal var backgroundColorAMPMHighlight: UIColor!
-    internal var fontHour: UIFont!
-    internal var fontHourHighlight: UIFont!
-    internal var fontColorHour: UIColor!
-    internal var fontColorHourHighlight: UIColor!
-    internal var backgroundColorHourHighlight: UIColor!
-    internal var backgroundColorHourHighlightNeedle: UIColor!
-    internal var fontMinute: UIFont!
-    internal var fontMinuteHighlight: UIFont!
-    internal var fontColorMinute: UIColor!
-    internal var fontColorMinuteHighlight: UIColor!
-    internal var backgroundColorMinuteHighlight: UIColor!
-    internal var backgroundColorMinuteHighlightNeedle: UIColor!
-    
-    internal var showingHour = true
-    internal var minuteStep: WWCalendarTimeSelectorTimeStep! {
-        didSet {
-            minutes = []
-            let iter = 60 / minuteStep.rawValue
-            for i in 0..<iter {
-                minutes.append(i * minuteStep.rawValue)
-            }
-        }
+  
+  open weak var delegate: WWClockProtocol!
+  internal var backgroundColorClockFace: UIColor!
+  internal var backgroundColorClockFaceCenter: UIColor!
+  internal var fontAMPM: UIFont!
+  internal var fontAMPMHighlight: UIFont!
+  internal var fontColorAMPM: UIColor!
+  internal var fontColorAMPMHighlight: UIColor!
+  internal var backgroundColorAMPMHighlight: UIColor!
+  internal var fontHour: UIFont!
+  internal var fontHourHighlight: UIFont!
+  internal var fontColorHour: UIColor!
+  internal var fontColorHourHighlight: UIColor!
+  internal var backgroundColorHourHighlight: UIColor!
+  internal var backgroundColorHourHighlightNeedle: UIColor!
+  internal var fontMinute: UIFont!
+  internal var fontMinuteHighlight: UIFont!
+  internal var fontColorMinute: UIColor!
+  internal var fontColorMinuteHighlight: UIColor!
+  internal var backgroundColorMinuteHighlight: UIColor!
+  internal var backgroundColorMinuteHighlightNeedle: UIColor!
+  
+  internal var showingHour = true
+  internal var minuteStep: WWCalendarTimeSelectorTimeStep! {
+    didSet {
+      minutes = []
+      let iter = 60 / minuteStep.rawValue
+      for i in 0..<iter {
+        minutes.append(i * minuteStep.rawValue)
+      }
     }
+  }
+  
+  fileprivate let border: CGFloat = 8
+  fileprivate let ampmSize: CGFloat = 0
+  fileprivate var faceSize: CGFloat = 0
+  fileprivate var faceX: CGFloat = 0
+  fileprivate let faceY: CGFloat = 8
+  fileprivate let amX: CGFloat = 8
+  fileprivate var pmX: CGFloat = 0
+  fileprivate var ampmY: CGFloat = 0
+  fileprivate let numberCircleBorder: CGFloat = 12
+  fileprivate let centerPieceSize = 4
+  fileprivate let hours = [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+  fileprivate var minutes: [Int] = []
+  
+  internal override func draw(_ rect: CGRect) {
     
-    fileprivate let border: CGFloat = 8
-    fileprivate let ampmSize: CGFloat = 52
-    fileprivate var faceSize: CGFloat = 0
-    fileprivate var faceX: CGFloat = 0
-    fileprivate let faceY: CGFloat = 8
-    fileprivate let amX: CGFloat = 8
-    fileprivate var pmX: CGFloat = 0
-    fileprivate var ampmY: CGFloat = 0
-    fileprivate let numberCircleBorder: CGFloat = 12
-    fileprivate let centerPieceSize = 4
-    fileprivate let hours = [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
-    fileprivate var minutes: [Int] = []
+    // update frames
+    faceSize = min(rect.width - border * 2, rect.height - border * 2 - ampmSize / 3 * 2)
+    faceX = (rect.width - faceSize) / 2
+    pmX = rect.width - border - ampmSize
+    ampmY = 100 //rect.height - border - ampmSize
     
-    internal override func draw(_ rect: CGRect) {
-        // update frames
-        faceSize = min(rect.width - border * 2, rect.height - border * 2 - ampmSize / 3 * 2)
-        faceX = (rect.width - faceSize) / 2
-        pmX = rect.width - border - ampmSize
-        ampmY = rect.height - border - ampmSize
+    let time = delegate.WWClockGetTime()
+    let ctx = UIGraphicsGetCurrentContext()
+    let paragraph = NSMutableParagraphStyle()
+    paragraph.alignment = NSTextAlignment.center
+    
+    ctx?.setFillColor(backgroundColorClockFace.cgColor)
+    ctx?.fillEllipse(in: CGRect(x: faceX, y: faceY, width: faceSize, height: faceSize))
+    
+    
+    /*
+     ctx?.setFillColor(backgroundColorAMPMHighlight.cgColor)
+     if time.hour < 12 { //AM selected
+     ctx?.fill(CGRect(x: amX, y: ampmY, width: ampmSize, height: ampmSize))
+     var str = NSAttributedString(string: "AM", attributes: [NSFontAttributeName: fontAMPMHighlight, NSForegroundColorAttributeName: fontColorAMPMHighlight, NSParagraphStyleAttributeName: paragraph])
+     var ampmHeight = fontAMPMHighlight.lineHeight
+     str.draw(in: CGRect(x: amX, y: ampmY + (ampmSize - ampmHeight) / 2, width: ampmSize, height: ampmHeight))
+     
+     str = NSAttributedString(string: "PM", attributes: [NSFontAttributeName: fontAMPM, NSForegroundColorAttributeName: fontColorAMPM, NSParagraphStyleAttributeName: paragraph])
+     ampmHeight = fontAMPM.lineHeight
+     str.draw(in: CGRect(x: pmX, y: ampmY + (ampmSize - ampmHeight) / 2, width: ampmSize, height: ampmHeight))
+     }
+     else { //PM selected
+     ctx?.fill(CGRect(x: pmX, y: ampmY, width: ampmSize, height: ampmSize))
+     var str = NSAttributedString(string: "AM", attributes: [NSFontAttributeName: fontAMPM, NSForegroundColorAttributeName: fontColorAMPM, NSParagraphStyleAttributeName: paragraph])
+     var ampmHeight = fontAMPM.lineHeight
+     str.draw(in: CGRect(x: amX, y: ampmY + (ampmSize - ampmHeight) / 2, width: ampmSize, height: ampmHeight))
+     
+     str = NSAttributedString(string: "PM", attributes: [NSFontAttributeName: fontAMPMHighlight, NSForegroundColorAttributeName: fontColorAMPMHighlight, NSParagraphStyleAttributeName: paragraph])
+     ampmHeight = fontAMPMHighlight.lineHeight
+     str.draw(in: CGRect(x: pmX, y: ampmY + (ampmSize - ampmHeight) / 2, width: ampmSize, height: ampmHeight))
+     }
+     */
+    if showingHour {
+      let textAttr : [String : Any] = [NSFontAttributeName: fontHour, NSForegroundColorAttributeName: fontColorHour, NSParagraphStyleAttributeName: paragraph]
+      let textAttrHighlight : [String : Any] = [NSFontAttributeName: fontHourHighlight, NSForegroundColorAttributeName: fontColorHourHighlight, NSParagraphStyleAttributeName: paragraph]
+      
+      let templateSize = NSAttributedString(string: "12", attributes: textAttr).size()
+      let templateSizeHighlight = NSAttributedString(string: "12", attributes: textAttrHighlight).size()
+      let maxSize = max(templateSize.width, templateSize.height)
+      let maxSizeHighlight = max(templateSizeHighlight.width, templateSizeHighlight.height)
+      let highlightCircleSize = maxSizeHighlight + numberCircleBorder
+      let radius = faceSize / 2 - maxSize
+      let radiusHighlight = faceSize / 2 - maxSizeHighlight
+      
+      ctx?.saveGState()
+      ctx?.translateBy(x: faceX + faceSize / 2, y: faceY + faceSize / 2) // everything starts at clock face center
+      
+      let degreeIncrement = 360 / CGFloat(hours.count)
+      let currentHour = get12Hour(time)
+      
+      for (index, element) in hours.enumerated() {
+        let angle = getClockRad(CGFloat(index) * degreeIncrement)
         
-        let time = delegate.WWClockGetTime()
-        let ctx = UIGraphicsGetCurrentContext()
-        let paragraph = NSMutableParagraphStyle()
-        paragraph.alignment = NSTextAlignment.center
-        
-        ctx?.setFillColor(backgroundColorClockFace.cgColor)
-        ctx?.fillEllipse(in: CGRect(x: faceX, y: faceY, width: faceSize, height: faceSize))
-        
-        ctx?.setFillColor(backgroundColorAMPMHighlight.cgColor)
-        if time.hour < 12 {
-            ctx?.fillEllipse(in: CGRect(x: amX, y: ampmY, width: ampmSize, height: ampmSize))
-            var str = NSAttributedString(string: "AM", attributes: [NSFontAttributeName: fontAMPMHighlight, NSForegroundColorAttributeName: fontColorAMPMHighlight, NSParagraphStyleAttributeName: paragraph])
-            var ampmHeight = fontAMPMHighlight.lineHeight
-            str.draw(in: CGRect(x: amX, y: ampmY + (ampmSize - ampmHeight) / 2, width: ampmSize, height: ampmHeight))
-            str = NSAttributedString(string: "PM", attributes: [NSFontAttributeName: fontAMPM, NSForegroundColorAttributeName: fontColorAMPM, NSParagraphStyleAttributeName: paragraph])
-            ampmHeight = fontAMPM.lineHeight
-            str.draw(in: CGRect(x: pmX, y: ampmY + (ampmSize - ampmHeight) / 2, width: ampmSize, height: ampmHeight))
+        if element == currentHour {
+          // needle
+          ctx?.saveGState()
+          ctx?.setStrokeColor(backgroundColorHourHighlightNeedle.cgColor)
+          ctx?.setLineWidth(2)
+          ctx?.move(to: CGPoint(x: 0, y: 0))
+          ctx?.scaleBy(x: -1, y: 1)
+          ctx?.addLine(to: CGPoint(x: (radiusHighlight - highlightCircleSize / 2) * cos(angle), y: -((radiusHighlight - highlightCircleSize / 2) * sin(angle))))
+          ctx?.scaleBy(x: -1, y: 1)
+          ctx?.strokePath()
+          ctx?.restoreGState()
+          
+          // highlight
+          ctx?.saveGState()
+          ctx?.setFillColor(backgroundColorHourHighlight.cgColor)
+          ctx?.scaleBy(x: -1, y: 1)
+          ctx?.translateBy(x: radiusHighlight * cos(angle), y: -(radiusHighlight * sin(angle)))
+          ctx?.scaleBy(x: -1, y: 1)
+          ctx?.fillEllipse(in: CGRect(x: -highlightCircleSize / 2, y: -highlightCircleSize / 2, width: highlightCircleSize, height: highlightCircleSize))
+          ctx?.restoreGState()
+          
+          // numbers
+          let hour = NSAttributedString(string: "\(element)", attributes: textAttrHighlight)
+          ctx?.saveGState()
+          ctx?.scaleBy(x: -1, y: 1)
+          ctx?.translateBy(x: radiusHighlight * cos(angle), y: -(radiusHighlight * sin(angle)))
+          ctx?.scaleBy(x: -1, y: 1)
+          ctx?.translateBy(x: -hour.size().width / 2, y: -hour.size().height / 2)
+          hour.draw(at: CGPoint.zero)
+          ctx?.restoreGState()
         }
         else {
-            ctx?.fillEllipse(in: CGRect(x: pmX, y: ampmY, width: ampmSize, height: ampmSize))
-            var str = NSAttributedString(string: "AM", attributes: [NSFontAttributeName: fontAMPM, NSForegroundColorAttributeName: fontColorAMPM, NSParagraphStyleAttributeName: paragraph])
-            var ampmHeight = fontAMPM.lineHeight
-            str.draw(in: CGRect(x: amX, y: ampmY + (ampmSize - ampmHeight) / 2, width: ampmSize, height: ampmHeight))
-            str = NSAttributedString(string: "PM", attributes: [NSFontAttributeName: fontAMPMHighlight, NSForegroundColorAttributeName: fontColorAMPMHighlight, NSParagraphStyleAttributeName: paragraph])
-            ampmHeight = fontAMPMHighlight.lineHeight
-            str.draw(in: CGRect(x: pmX, y: ampmY + (ampmSize - ampmHeight) / 2, width: ampmSize, height: ampmHeight))
+          // numbers
+          let hour = NSAttributedString(string: "\(element)", attributes: textAttr)
+          ctx?.saveGState()
+          ctx?.scaleBy(x: -1, y: 1)
+          ctx?.translateBy(x: radius * cos(angle), y: -(radius * sin(angle)))
+          ctx?.scaleBy(x: -1, y: 1)
+          ctx?.translateBy(x: -hour.size().width / 2, y: -hour.size().height / 2)
+          hour.draw(at: CGPoint.zero)
+          ctx?.restoreGState()
         }
+      }
+    }
+    else {
+      let textAttr : [String : Any] = [NSFontAttributeName: fontMinute, NSForegroundColorAttributeName: fontColorMinute, NSParagraphStyleAttributeName: paragraph]
+      let textAttrHighlight : [String : Any] = [NSFontAttributeName: fontMinuteHighlight, NSForegroundColorAttributeName: fontColorMinuteHighlight, NSParagraphStyleAttributeName: paragraph]
+      let templateSize = NSAttributedString(string: "60", attributes: textAttr).size()
+      let templateSizeHighlight = NSAttributedString(string: "60", attributes: textAttrHighlight).size()
+      let maxSize = max(templateSize.width, templateSize.height)
+      let maxSizeHighlight = max(templateSizeHighlight.width, templateSizeHighlight.height)
+      let minSize: CGFloat = 0
+      let highlightCircleMaxSize = maxSizeHighlight + numberCircleBorder
+      let highlightCircleMinSize = minSize + numberCircleBorder
+      let radius = faceSize / 2 - maxSize
+      let radiusHighlight = faceSize / 2 - maxSizeHighlight
+      
+      ctx?.saveGState()
+      ctx?.translateBy(x: faceX + faceSize / 2, y: faceY + faceSize / 2) // everything starts at clock face center
+      
+      let degreeIncrement = 360 / CGFloat(minutes.count)
+      let currentMinute = get60Minute(time)
+      
+      for (index, element) in minutes.enumerated() {
+        let angle = getClockRad(CGFloat(index) * degreeIncrement)
         
-        if showingHour {
-            let textAttr : [String : Any] = [NSFontAttributeName: fontHour, NSForegroundColorAttributeName: fontColorHour, NSParagraphStyleAttributeName: paragraph]
-            let textAttrHighlight : [String : Any] = [NSFontAttributeName: fontHourHighlight, NSForegroundColorAttributeName: fontColorHourHighlight, NSParagraphStyleAttributeName: paragraph]
-            
-            let templateSize = NSAttributedString(string: "12", attributes: textAttr).size()
-            let templateSizeHighlight = NSAttributedString(string: "12", attributes: textAttrHighlight).size()
-            let maxSize = max(templateSize.width, templateSize.height)
-            let maxSizeHighlight = max(templateSizeHighlight.width, templateSizeHighlight.height)
-            let highlightCircleSize = maxSizeHighlight + numberCircleBorder
-            let radius = faceSize / 2 - maxSize
-            let radiusHighlight = faceSize / 2 - maxSizeHighlight
-            
+        if element == currentMinute {
+          // needle
+          ctx?.saveGState()
+          ctx?.setStrokeColor(backgroundColorMinuteHighlightNeedle.cgColor)
+          ctx?.setLineWidth(2)
+          ctx?.move(to: CGPoint(x: 0, y: 0))
+          ctx?.scaleBy(x: -1, y: 1)
+          if minuteStep.rawValue < 5 && element % 5 != 0 {
+            ctx?.addLine(to: CGPoint(x: (radiusHighlight - highlightCircleMinSize / 2) * cos(angle), y: -((radiusHighlight - highlightCircleMinSize / 2) * sin(angle))))
+          }
+          else {
+            ctx?.addLine(to: CGPoint(x: (radiusHighlight - highlightCircleMaxSize / 2) * cos(angle), y: -((radiusHighlight - highlightCircleMaxSize / 2) * sin(angle))))
+          }
+          ctx?.scaleBy(x: -1, y: 1)
+          ctx?.strokePath()
+          ctx?.restoreGState()
+          
+          // highlight
+          ctx?.saveGState()
+          ctx?.setFillColor(backgroundColorMinuteHighlight.cgColor)
+          ctx?.scaleBy(x: -1, y: 1)
+          ctx?.translateBy(x: radiusHighlight * cos(angle), y: -(radiusHighlight * sin(angle)))
+          ctx?.scaleBy(x: -1, y: 1)
+          if minuteStep.rawValue < 5 && element % 5 != 0 {
+            ctx?.fillEllipse(in: CGRect(x: -highlightCircleMinSize / 2, y: -highlightCircleMinSize / 2, width: highlightCircleMinSize, height: highlightCircleMinSize))
+          }
+          else {
+            ctx?.fillEllipse(in: CGRect(x: -highlightCircleMaxSize / 2, y: -highlightCircleMaxSize / 2, width: highlightCircleMaxSize, height: highlightCircleMaxSize))
+          }
+          ctx?.restoreGState()
+          
+          // numbers
+          if minuteStep.rawValue < 5 {
+            if element % 5 == 0 {
+              let min = NSAttributedString(string: "\(element)", attributes: textAttrHighlight)
+              ctx?.saveGState()
+              ctx?.scaleBy(x: -1, y: 1)
+              ctx?.translateBy(x: radiusHighlight * cos(angle), y: -(radiusHighlight * sin(angle)))
+              ctx?.scaleBy(x: -1, y: 1)
+              ctx?.translateBy(x: -min.size().width / 2, y: -min.size().height / 2)
+              min.draw(at: CGPoint.zero)
+              ctx?.restoreGState()
+            }
+          }
+          else {
+            let min = NSAttributedString(string: "\(element)", attributes: textAttrHighlight)
             ctx?.saveGState()
-            ctx?.translateBy(x: faceX + faceSize / 2, y: faceY + faceSize / 2) // everything starts at clock face center
-            
-            let degreeIncrement = 360 / CGFloat(hours.count)
-            let currentHour = get12Hour(time)
-            
-            for (index, element) in hours.enumerated() {
-                let angle = getClockRad(CGFloat(index) * degreeIncrement)
-                
-                if element == currentHour {
-                    // needle
-                    ctx?.saveGState()
-                    ctx?.setStrokeColor(backgroundColorHourHighlightNeedle.cgColor)
-                    ctx?.setLineWidth(1)
-                    ctx?.move(to: CGPoint(x: 0, y: 0))
-                    ctx?.scaleBy(x: -1, y: 1)
-                    ctx?.addLine(to: CGPoint(x: (radiusHighlight - highlightCircleSize / 2) * cos(angle), y: -((radiusHighlight - highlightCircleSize / 2) * sin(angle))))
-                    ctx?.scaleBy(x: -1, y: 1)
-                    ctx?.strokePath()
-                    ctx?.restoreGState()
-                    
-                    // highlight
-                    ctx?.saveGState()
-                    ctx?.setFillColor(backgroundColorHourHighlight.cgColor)
-                    ctx?.scaleBy(x: -1, y: 1)
-                    ctx?.translateBy(x: radiusHighlight * cos(angle), y: -(radiusHighlight * sin(angle)))
-                    ctx?.scaleBy(x: -1, y: 1)
-                    ctx?.fillEllipse(in: CGRect(x: -highlightCircleSize / 2, y: -highlightCircleSize / 2, width: highlightCircleSize, height: highlightCircleSize))
-                    ctx?.restoreGState()
-                    
-                    // numbers
-                    let hour = NSAttributedString(string: "\(element)", attributes: textAttrHighlight)
-                    ctx?.saveGState()
-                    ctx?.scaleBy(x: -1, y: 1)
-                    ctx?.translateBy(x: radiusHighlight * cos(angle), y: -(radiusHighlight * sin(angle)))
-                    ctx?.scaleBy(x: -1, y: 1)
-                    ctx?.translateBy(x: -hour.size().width / 2, y: -hour.size().height / 2)
-                    hour.draw(at: CGPoint.zero)
-                    ctx?.restoreGState()
-                }
-                else {
-                    // numbers
-                    let hour = NSAttributedString(string: "\(element)", attributes: textAttr)
-                    ctx?.saveGState()
-                    ctx?.scaleBy(x: -1, y: 1)
-                    ctx?.translateBy(x: radius * cos(angle), y: -(radius * sin(angle)))
-                    ctx?.scaleBy(x: -1, y: 1)
-                    ctx?.translateBy(x: -hour.size().width / 2, y: -hour.size().height / 2)
-                    hour.draw(at: CGPoint.zero)
-                    ctx?.restoreGState()
-                }
-            }
+            ctx?.scaleBy(x: -1, y: 1)
+            ctx?.translateBy(x: radiusHighlight * cos(angle), y: -(radiusHighlight * sin(angle)))
+            ctx?.scaleBy(x: -1, y: 1)
+            ctx?.translateBy(x: -min.size().width / 2, y: -min.size().height / 2)
+            min.draw(at: CGPoint.zero)
+            ctx?.restoreGState()
+          }
         }
         else {
-            let textAttr : [String : Any] = [NSFontAttributeName: fontMinute, NSForegroundColorAttributeName: fontColorMinute, NSParagraphStyleAttributeName: paragraph]
-            let textAttrHighlight : [String : Any] = [NSFontAttributeName: fontMinuteHighlight, NSForegroundColorAttributeName: fontColorMinuteHighlight, NSParagraphStyleAttributeName: paragraph]
-            let templateSize = NSAttributedString(string: "60", attributes: textAttr).size()
-            let templateSizeHighlight = NSAttributedString(string: "60", attributes: textAttrHighlight).size()
-            let maxSize = max(templateSize.width, templateSize.height)
-            let maxSizeHighlight = max(templateSizeHighlight.width, templateSizeHighlight.height)
-            let minSize: CGFloat = 0
-            let highlightCircleMaxSize = maxSizeHighlight + numberCircleBorder
-            let highlightCircleMinSize = minSize + numberCircleBorder
-            let radius = faceSize / 2 - maxSize
-            let radiusHighlight = faceSize / 2 - maxSizeHighlight
-            
+          // numbers
+          if minuteStep.rawValue < 5 {
+            if element % 5 == 0 {
+              let min = NSAttributedString(string: "\(element)", attributes: textAttr)
+              ctx?.saveGState()
+              ctx?.scaleBy(x: -1, y: 1)
+              ctx?.translateBy(x: radius * cos(angle), y: -(radius * sin(angle)))
+              ctx?.scaleBy(x: -1, y: 1)
+              ctx?.translateBy(x: -min.size().width / 2, y: -min.size().height / 2)
+              min.draw(at: CGPoint.zero)
+              ctx?.restoreGState()
+            }
+          }
+          else {
+            let min = NSAttributedString(string: "\(element)", attributes: textAttr)
             ctx?.saveGState()
-            ctx?.translateBy(x: faceX + faceSize / 2, y: faceY + faceSize / 2) // everything starts at clock face center
-            
-            let degreeIncrement = 360 / CGFloat(minutes.count)
-            let currentMinute = get60Minute(time)
-            
-            for (index, element) in minutes.enumerated() {
-                let angle = getClockRad(CGFloat(index) * degreeIncrement)
-                
-                if element == currentMinute {
-                    // needle
-                    ctx?.saveGState()
-                    ctx?.setStrokeColor(backgroundColorMinuteHighlightNeedle.cgColor)
-                    ctx?.setLineWidth(1)
-                    ctx?.move(to: CGPoint(x: 0, y: 0))
-                    ctx?.scaleBy(x: -1, y: 1)
-                    if minuteStep.rawValue < 5 && element % 5 != 0 {
-                        ctx?.addLine(to: CGPoint(x: (radiusHighlight - highlightCircleMinSize / 2) * cos(angle), y: -((radiusHighlight - highlightCircleMinSize / 2) * sin(angle))))
-                    }
-                    else {
-                        ctx?.addLine(to: CGPoint(x: (radiusHighlight - highlightCircleMaxSize / 2) * cos(angle), y: -((radiusHighlight - highlightCircleMaxSize / 2) * sin(angle))))
-                    }
-                    ctx?.scaleBy(x: -1, y: 1)
-                    ctx?.strokePath()
-                    ctx?.restoreGState()
-                    
-                    // highlight
-                    ctx?.saveGState()
-                    ctx?.setFillColor(backgroundColorMinuteHighlight.cgColor)
-                    ctx?.scaleBy(x: -1, y: 1)
-                    ctx?.translateBy(x: radiusHighlight * cos(angle), y: -(radiusHighlight * sin(angle)))
-                    ctx?.scaleBy(x: -1, y: 1)
-                    if minuteStep.rawValue < 5 && element % 5 != 0 {
-                        ctx?.fillEllipse(in: CGRect(x: -highlightCircleMinSize / 2, y: -highlightCircleMinSize / 2, width: highlightCircleMinSize, height: highlightCircleMinSize))
-                    }
-                    else {
-                        ctx?.fillEllipse(in: CGRect(x: -highlightCircleMaxSize / 2, y: -highlightCircleMaxSize / 2, width: highlightCircleMaxSize, height: highlightCircleMaxSize))
-                    }
-                    ctx?.restoreGState()
-                    
-                    // numbers
-                    if minuteStep.rawValue < 5 {
-                        if element % 5 == 0 {
-                            let min = NSAttributedString(string: "\(element)", attributes: textAttrHighlight)
-                            ctx?.saveGState()
-                            ctx?.scaleBy(x: -1, y: 1)
-                            ctx?.translateBy(x: radiusHighlight * cos(angle), y: -(radiusHighlight * sin(angle)))
-                            ctx?.scaleBy(x: -1, y: 1)
-                            ctx?.translateBy(x: -min.size().width / 2, y: -min.size().height / 2)
-                            min.draw(at: CGPoint.zero)
-                            ctx?.restoreGState()
-                        }
-                    }
-                    else {
-                        let min = NSAttributedString(string: "\(element)", attributes: textAttrHighlight)
-                        ctx?.saveGState()
-                        ctx?.scaleBy(x: -1, y: 1)
-                        ctx?.translateBy(x: radiusHighlight * cos(angle), y: -(radiusHighlight * sin(angle)))
-                        ctx?.scaleBy(x: -1, y: 1)
-                        ctx?.translateBy(x: -min.size().width / 2, y: -min.size().height / 2)
-                        min.draw(at: CGPoint.zero)
-                        ctx?.restoreGState()
-                    }
-                }
-                else {
-                    // numbers
-                    if minuteStep.rawValue < 5 {
-                        if element % 5 == 0 {
-                            let min = NSAttributedString(string: "\(element)", attributes: textAttr)
-                            ctx?.saveGState()
-                            ctx?.scaleBy(x: -1, y: 1)
-                            ctx?.translateBy(x: radius * cos(angle), y: -(radius * sin(angle)))
-                            ctx?.scaleBy(x: -1, y: 1)
-                            ctx?.translateBy(x: -min.size().width / 2, y: -min.size().height / 2)
-                            min.draw(at: CGPoint.zero)
-                            ctx?.restoreGState()
-                        }
-                    }
-                    else {
-                        let min = NSAttributedString(string: "\(element)", attributes: textAttr)
-                        ctx?.saveGState()
-                        ctx?.scaleBy(x: -1, y: 1)
-                        ctx?.translateBy(x: radius * cos(angle), y: -(radius * sin(angle)))
-                        ctx?.scaleBy(x: -1, y: 1)
-                        ctx?.translateBy(x: -min.size().width / 2, y: -min.size().height / 2)
-                        min.draw(at: CGPoint.zero)
-                        ctx?.restoreGState()
-                    }
-                }
-            }
+            ctx?.scaleBy(x: -1, y: 1)
+            ctx?.translateBy(x: radius * cos(angle), y: -(radius * sin(angle)))
+            ctx?.scaleBy(x: -1, y: 1)
+            ctx?.translateBy(x: -min.size().width / 2, y: -min.size().height / 2)
+            min.draw(at: CGPoint.zero)
+            ctx?.restoreGState()
+          }
         }
-        
-        // center piece
-        ctx?.setFillColor(backgroundColorClockFaceCenter.cgColor)
-        ctx?.fillEllipse(in: CGRect(x: -centerPieceSize / 2, y: -centerPieceSize / 2, width: centerPieceSize, height: centerPieceSize))
-        ctx?.restoreGState()
+      }
     }
     
-    fileprivate func get60Minute(_ date: Date) -> Int {
-        return date.minute
+    // center piece
+    ctx?.setFillColor(backgroundColorClockFaceCenter.cgColor)
+    ctx?.fillEllipse(in: CGRect(x: -centerPieceSize / 2, y: -centerPieceSize / 2, width: centerPieceSize, height: centerPieceSize))
+    ctx?.restoreGState()
+  }
+  
+  fileprivate func get60Minute(_ date: Date) -> Int {
+    return date.minute
+  }
+  
+  fileprivate func get12Hour(_ date: Date) -> Int {
+    let hr = date.hour
+    return hr == 0 || hr == 12 ? 12 : hr < 12 ? hr : hr - 12
+  }
+  
+  fileprivate func getClockRad(_ degrees: CGFloat) -> CGFloat {
+    let radOffset = 90.degreesToRadians // add this number to get 12 at top, 3 at right
+    return degrees.degreesToRadians + radOffset
+  }
+  
+  override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+    if let touch = touches.sorted(by: { $0.timestamp < $1.timestamp }).last {
+      let pt = touch.location(in: self)
+      
+      // see if tap on AM or PM, making the boundary bigger
+      /*
+       let amRect = CGRect(x: 0, y: ampmY, width: ampmSize + border * 2, height: ampmSize + border)
+       let pmRect = CGRect(x: bounds.width - ampmSize - border, y: ampmY, width: ampmSize + border * 2, height: ampmSize + border)
+       
+       if amRect.contains(pt) {
+       delegate.WWClockSwitchAMPM(isAM: true, isPM: false)
+       }
+       else if pmRect.contains(pt) {
+       delegate.WWClockSwitchAMPM(isAM: false, isPM: true)
+       }
+       else {*/
+      touchClock(pt: pt)
+      //}
     }
+  }
+  
+  override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+    if let touch = touches.sorted(by: { $0.timestamp < $1.timestamp }).last {
+      let pt = touch.location(in: self)
+      touchClock(pt: pt)
+    }
+  }
+  
+  fileprivate func touchClock(pt: CGPoint) {
+    let touchPoint = CGPoint(x: pt.x - faceX - faceSize / 2, y: pt.y - faceY - faceSize / 2) // this means centerpoint will be 0, 0
     
-    fileprivate func get12Hour(_ date: Date) -> Int {
-        let hr = date.hour
-        return hr == 0 || hr == 12 ? 12 : hr < 12 ? hr : hr - 12
+    if showingHour {
+      let degreeIncrement = 360 / CGFloat(hours.count)
+      
+      var angle = 180 - atan2(touchPoint.x, touchPoint.y).radiansToDegrees // with respect that 12 o'clock position is 0 degrees, and 3 o'clock position is 90 degrees
+      if angle < 0 {
+        angle = 0
+      }
+      angle = angle - degreeIncrement / 2
+      var index = Int(floor(angle / degreeIncrement)) + 1
+      
+      if index < 0 || index > (hours.count - 1) {
+        index = 0
+      }
+      
+      let hour = hours[index]
+      let time = delegate.WWClockGetTime()
+      if hour == 12 {
+        delegate.WWClockSetHourMilitary(time.hour < 12 ? 0 : 12)
+      }
+      else {
+        delegate.WWClockSetHourMilitary(time.hour < 12 ? hour : 12 + hour)
+      }
     }
-    
-    fileprivate func getClockRad(_ degrees: CGFloat) -> CGFloat {
-        let radOffset = 90.degreesToRadians // add this number to get 12 at top, 3 at right
-        return degrees.degreesToRadians + radOffset
+    else {
+      let degreeIncrement = 360 / CGFloat(minutes.count)
+      
+      var angle = 180 - atan2(touchPoint.x, touchPoint.y).radiansToDegrees // with respect that 12 o'clock position is 0 degrees, and 3 o'clock position is 90 degrees
+      if angle < 0 {
+        angle = 0
+      }
+      angle = angle - degreeIncrement / 2
+      var index = Int(floor(angle / degreeIncrement)) + 1
+      
+      if index < 0 || index > (minutes.count - 1) {
+        index = 0
+      }
+      
+      let minute = minutes[index]
+      delegate.WWClockSetMinute(minute)
     }
-    
-    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        if let touch = touches.sorted(by: { $0.timestamp < $1.timestamp }).last {
-            let pt = touch.location(in: self)
-            
-            // see if tap on AM or PM, making the boundary bigger
-            let amRect = CGRect(x: 0, y: ampmY, width: ampmSize + border * 2, height: ampmSize + border)
-            let pmRect = CGRect(x: bounds.width - ampmSize - border, y: ampmY, width: ampmSize + border * 2, height: ampmSize + border)
-            
-            if amRect.contains(pt) {
-                delegate.WWClockSwitchAMPM(isAM: true, isPM: false)
-            }
-            else if pmRect.contains(pt) {
-                delegate.WWClockSwitchAMPM(isAM: false, isPM: true)
-            }
-            else {
-                touchClock(pt: pt)
-            }
-        }
-    }
-    
-    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        if let touch = touches.sorted(by: { $0.timestamp < $1.timestamp }).last {
-            let pt = touch.location(in: self)
-            touchClock(pt: pt)
-        }
-    }
-    
-    fileprivate func touchClock(pt: CGPoint) {
-        let touchPoint = CGPoint(x: pt.x - faceX - faceSize / 2, y: pt.y - faceY - faceSize / 2) // this means centerpoint will be 0, 0
-        
-        if showingHour {
-            let degreeIncrement = 360 / CGFloat(hours.count)
-            
-            var angle = 180 - atan2(touchPoint.x, touchPoint.y).radiansToDegrees // with respect that 12 o'clock position is 0 degrees, and 3 o'clock position is 90 degrees
-            if angle < 0 {
-                angle = 0
-            }
-            angle = angle - degreeIncrement / 2
-            var index = Int(floor(angle / degreeIncrement)) + 1
-            
-            if index < 0 || index > (hours.count - 1) {
-                index = 0
-            }
-            
-            let hour = hours[index]
-            let time = delegate.WWClockGetTime()
-            if hour == 12 {
-                delegate.WWClockSetHourMilitary(time.hour < 12 ? 0 : 12)
-            }
-            else {
-                delegate.WWClockSetHourMilitary(time.hour < 12 ? hour : 12 + hour)
-            }
-        }
-        else {
-            let degreeIncrement = 360 / CGFloat(minutes.count)
-            
-            var angle = 180 - atan2(touchPoint.x, touchPoint.y).radiansToDegrees // with respect that 12 o'clock position is 0 degrees, and 3 o'clock position is 90 degrees
-            if angle < 0 {
-                angle = 0
-            }
-            angle = angle - degreeIncrement / 2
-            var index = Int(floor(angle / degreeIncrement)) + 1
-            
-            if index < 0 || index > (minutes.count - 1) {
-                index = 0
-            }
-            
-            let minute = minutes[index]
-            delegate.WWClockSetMinute(minute)
-        }
-    }
+  }
 }
 
 private extension CGFloat {

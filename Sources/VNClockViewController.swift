@@ -129,7 +129,7 @@ open class VNClockViewController: UIViewController, VNClockProtocol {
     if let bundleURL = bundleURL {
       bundle = Bundle(url: bundleURL)
     }
-    return UIStoryboard(name: "VNClock", bundle: bundle).instantiateInitialViewController() as! VNClockViewController
+    return UIStoryboard(name: "VNClockViewController", bundle: bundle).instantiateInitialViewController() as! VNClockViewController
   }
   
   open override func viewDidLoad() {
@@ -370,7 +370,7 @@ internal protocol VNClockProtocol: NSObjectProtocol {
   func VNClockSetMinute(_ minute: Int)
 }
 
-class VNClock: UIView {
+internal class VNClock: UIView {
   
   open weak var delegate: VNClockProtocol!
   internal var backgroundColorClockFace: UIColor!
