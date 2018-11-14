@@ -328,7 +328,7 @@ open class VNClockViewController: UIViewController, VNClockProtocol {
     let timeText = optionCurrentDate.stringFromFormat("h':'mm").lowercased()
     let paragraph = NSMutableParagraphStyle()
     paragraph.alignment = NSTextAlignment.center
-    let attrText = NSMutableAttributedString(string: timeText, attributes: [NSFontAttributeName: optionSelectorPanelFontTime, NSForegroundColorAttributeName: optionSelectorPanelFontColorTime, NSParagraphStyleAttributeName: paragraph])
+    let attrText = NSMutableAttributedString(string: timeText, attributes: [NSAttributedStringKey.font: optionSelectorPanelFontTime, NSAttributedStringKey.foregroundColor: optionSelectorPanelFontColorTime, NSAttributedStringKey.paragraphStyle: paragraph])
     
     if selCurrrent.showTime {
       
@@ -337,10 +337,10 @@ open class VNClockViewController: UIViewController, VNClockProtocol {
       let minuteRange = NSRange(location: colonIndex + 1, length: 2)
       
       if selTimeStateHour {
-        attrText.addAttributes([NSForegroundColorAttributeName: optionSelectorPanelFontColorTimeHighlight], range: hourRange)
+        attrText.addAttributes([NSAttributedStringKey.foregroundColor: optionSelectorPanelFontColorTimeHighlight], range: hourRange)
       }
       else {
-        attrText.addAttributes([NSForegroundColorAttributeName: optionSelectorPanelFontColorTimeHighlight], range: minuteRange)
+        attrText.addAttributes([NSAttributedStringKey.foregroundColor: optionSelectorPanelFontColorTimeHighlight], range: minuteRange)
       }
     }
     timeLabel.attributedText = attrText
@@ -459,8 +459,8 @@ class VNClock: UIView {
      }
      */
     if showingHour {
-      let textAttr : [String : Any] = [NSFontAttributeName: fontHour, NSForegroundColorAttributeName: fontColorHour, NSParagraphStyleAttributeName: paragraph]
-      let textAttrHighlight : [String : Any] = [NSFontAttributeName: fontHourHighlight, NSForegroundColorAttributeName: fontColorHourHighlight, NSParagraphStyleAttributeName: paragraph]
+      let textAttr : [NSAttributedStringKey : Any] = [NSAttributedStringKey.font: fontHour, NSAttributedStringKey.foregroundColor: fontColorHour, NSAttributedStringKey.paragraphStyle: paragraph]
+      let textAttrHighlight : [NSAttributedStringKey : Any] = [NSAttributedStringKey.font: fontHourHighlight, NSAttributedStringKey.foregroundColor: fontColorHourHighlight, NSAttributedStringKey.paragraphStyle: paragraph]
       
       let templateSize = NSAttributedString(string: "12", attributes: textAttr).size()
       let templateSizeHighlight = NSAttributedString(string: "12", attributes: textAttrHighlight).size()
@@ -524,8 +524,8 @@ class VNClock: UIView {
       }
     }
     else {
-      let textAttr : [String : Any] = [NSFontAttributeName: fontMinute, NSForegroundColorAttributeName: fontColorMinute, NSParagraphStyleAttributeName: paragraph]
-      let textAttrHighlight : [String : Any] = [NSFontAttributeName: fontMinuteHighlight, NSForegroundColorAttributeName: fontColorMinuteHighlight, NSParagraphStyleAttributeName: paragraph]
+      let textAttr : [NSAttributedStringKey : Any] = [NSAttributedStringKey.font: fontMinute, NSAttributedStringKey.foregroundColor: fontColorMinute, NSAttributedStringKey.paragraphStyle: paragraph]
+      let textAttrHighlight : [NSAttributedStringKey : Any] = [NSAttributedStringKey.font: fontMinuteHighlight, NSAttributedStringKey.foregroundColor: fontColorMinuteHighlight, NSAttributedStringKey.paragraphStyle: paragraph]
       let templateSize = NSAttributedString(string: "60", attributes: textAttr).size()
       let templateSizeHighlight = NSAttributedString(string: "60", attributes: textAttrHighlight).size()
       let maxSize = max(templateSize.width, templateSize.height)
